@@ -1,0 +1,5 @@
+id,review_id,rule,severity,line,message,suggestion
+1,1,"SYSTEM OUT",LOW,1,"System.out output is used in the code.","Use a logging framework such as java.util.logging or SLF4J."
+2,1,MAGIC_NUMBER,LOW,1,"Unnamed numeric constant found: 10","Replace it with a named constant that explains its meaning."
+3,2,"SYSTEM OUT",LOW,1,"System.out output is used in the code.","Use a logging framework such as java.util.logging or SLF4J."
+4,2,MAGIC_NUMBER,LOW,1,"Unnamed numeric constant found: 10","Replace it with a named constant that explains its meaning."
