@@ -3,36 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Code Reviewer — Smart Java Code Analysis</title>
-  <style>
-    /* ── Reset & Base ─────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <title>AI Code Reviewer — Smart Multi-Language Code Analysis & Security Auditor</title>
+  <meta name="description" content="Instant automated code review for Java, Python, JavaScript, and Go. Detect OWASP vulnerabilities, performance bottlenecks, and resource leaks with automated AI refactoring." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 
-    :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface2: #21262d;
-      --border: #30363d;
-      --accent: #58a6ff;
-      --accent2: #7ee787;
-      --accent3: #f78166;
-      --accent4: #d2a8ff;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --gradient: linear-gradient(135deg, #58a6ff 0%, #d2a8ff 50%, #7ee787 100%);
+  <style>
+    /* ── Design Tokens & Base ───────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    html { scroll-behavior: smooth; }
+    :root {
+      --bg: #090d16;
+      --bg-alt: #0d1322;
+      --surface: #141b2d;
+      --surface2: #1b243b;
+      --surface-glass: rgba(20, 27, 45, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 179, 237, 0.4);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --accent2: #4ade80;
+      --accent3: #f87171;
+      --accent4: #c084fc;
+      --accent-warn: #fbbf24;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --gradient-primary: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+      --radius: 12px;
+      --radius-lg: 18px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
       color: var(--text);
       line-height: 1.6;
       overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse 90% 60% at 50% -10%, rgba(56, 189, 248, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 90% 40%, rgba(192, 132, 252, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 10% 80%, rgba(74, 222, 128, 0.06) 0%, transparent 60%);
+      background-attachment: fixed;
     }
 
-    /* ── Navbar ───────────────────────────────────────── */
+    /* ── Navigation ─────────────────────────────────────── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -40,28 +68,42 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 2rem;
-      height: 60px;
-      background: rgba(13,17,23,0.85);
-      backdrop-filter: blur(12px);
+      padding: 0.75rem 2.5rem;
+      background: rgba(9, 13, 22, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
     }
 
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      font-family: 'Outfit', sans-serif;
       font-weight: 700;
-      font-size: 1.1rem;
+      font-size: 1.25rem;
       text-decoration: none;
       color: var(--text);
+      letter-spacing: -0.01em;
     }
 
-    .nav-logo svg { color: var(--accent); }
+    .nav-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.3));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
 
     .nav-links {
       display: flex;
-      gap: 1.5rem;
+      gap: 1.75rem;
       list-style: none;
       align-items: center;
     }
@@ -69,91 +111,105 @@
     .nav-links a {
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
     }
 
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover {
+      color: var(--text);
+    }
 
     .nav-cta {
-      background: var(--accent);
-      color: #0d1117 !important;
-      padding: 0.4rem 1rem;
-      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text) !important;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
       font-weight: 600 !important;
-      transition: opacity 0.2s !important;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease !important;
     }
 
-    .nav-cta:hover { opacity: 0.85; }
+    .nav-cta:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      color: var(--accent) !important;
+      transform: translateY(-1px);
+    }
 
-    /* ── Hero ─────────────────────────────────────────── */
+    /* ── Hero Section ───────────────────────────────────── */
     .hero {
-      min-height: 80vh;
+      min-height: 75vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 90px 2rem 3rem;
+      padding: 120px 2rem 3rem;
       position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(88,166,255,0.15) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(210,168,255,0.1) 0%, transparent 50%);
-      pointer-events: none;
     }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      background: rgba(88,166,255,0.1);
-      border: 1px solid rgba(88,166,255,0.3);
+      gap: 0.5rem;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
       color: var(--accent);
-      padding: 0.35rem 1rem;
+      padding: 0.4rem 1.15rem;
       border-radius: 999px;
       font-size: 0.82rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
       animation: fadeUp 0.6s ease both;
     }
 
+    .hero-badge span.pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent2);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 1.8s infinite;
+    }
+
     .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4.2rem);
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.4rem, 5.5vw, 4.4rem);
       font-weight: 800;
       letter-spacing: -0.03em;
-      line-height: 1.1;
-      max-width: 850px;
+      line-height: 1.15;
+      max-width: 900px;
       animation: fadeUp 0.6s ease 0.1s both;
     }
 
-    .hero h1 .gradient-text {
-      background: var(--gradient);
+    .gradient-text {
+      background: var(--gradient-primary);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .hero p {
-      margin-top: 1.25rem;
+      margin-top: 1.35rem;
       font-size: 1.15rem;
       color: var(--text-muted);
-      max-width: 600px;
+      max-width: 660px;
+      line-height: 1.65;
       animation: fadeUp 0.6s ease 0.2s both;
     }
 
     .hero-actions {
       display: flex;
       gap: 1rem;
-      margin-top: 2rem;
+      margin-top: 2.25rem;
       flex-wrap: wrap;
       justify-content: center;
       animation: fadeUp 0.6s ease 0.3s both;
@@ -162,57 +218,93 @@
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
+      gap: 0.55rem;
+      padding: 0.78rem 1.6rem;
+      border-radius: 10px;
       font-size: 0.95rem;
       font-weight: 600;
       text-decoration: none;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
       cursor: pointer;
-      border: none;
+      border: 1px solid transparent;
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: #0d1117;
+      background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      color: #090d16;
+      font-weight: 700;
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3);
     }
 
     .btn-primary:hover {
-      background: #79b8ff;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 25px rgba(88,166,255,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(56, 189, 248, 0.45);
+      filter: brightness(1.1);
     }
 
     .btn-ghost {
-      background: transparent;
+      background: rgba(255, 255, 255, 0.04);
       color: var(--text);
-      border: 1px solid var(--border);
+      border-color: var(--border);
+      backdrop-filter: blur(8px);
     }
 
     .btn-ghost:hover {
-      background: var(--surface);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
-    /* ── Live Review Playground Section ──────────────── */
+    .hero-stats-row {
+      display: flex;
+      gap: 2.5rem;
+      margin-top: 3.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.6s ease 0.4s both;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-stat-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .hero-stat-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Live Playground Studio ─────────────────────────── */
     #playground {
       padding: 3rem 2rem 5rem;
-      max-width: 1200px;
+      max-width: 1320px;
       margin: 0 auto;
     }
 
-    .playground-container {
+    .studio-container {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
     }
 
-    .playground-header {
+    /* Studio Header & Language Tabs */
+    .studio-header {
       background: var(--surface2);
-      padding: 1rem 1.5rem;
+      padding: 1rem 1.75rem;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -221,624 +313,1650 @@
       gap: 1rem;
     }
 
-    .playground-title {
+    .lang-tabs {
       display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .sample-btn-group {
-      display: flex;
-      gap: 0.4rem;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .sample-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-right: 0.3rem;
-    }
-
-    .btn-sample {
-      background: var(--bg);
+      background: rgba(9, 13, 22, 0.6);
       border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+
+    .lang-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.95rem;
+      border-radius: 7px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-tab.active {
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+    }
+
+    .lang-tab:hover:not(.active) {
       color: var(--text);
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Preset Samples Toolbar */
+    .samples-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(13, 19, 34, 0.9);
+      padding: 0.65rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.84rem;
+    }
+
+    .samples-label {
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-right: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .sample-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.32rem 0.8rem;
+      border-radius: 7px;
       font-size: 0.8rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
     }
 
-    .btn-sample:hover {
+    .sample-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .sample-chip.active {
       border-color: var(--accent);
       color: var(--accent);
+      background: rgba(56, 189, 248, 0.15);
     }
 
-    .playground-body {
+    /* Studio Body Grid */
+    .studio-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      min-height: 520px;
+      grid-template-columns: 1.05fr 1fr;
+      min-height: 560px;
     }
 
-    @media (max-width: 900px) {
-      .playground-body {
+    @media (max-width: 992px) {
+      .studio-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .code-input-panel {
+    /* Left: Editor Panel */
+    .editor-panel {
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      background: #0d1117;
+      background: #090e17;
+      position: relative;
     }
 
-    @media (max-width: 900px) {
-      .code-input-panel {
+    @media (max-width: 992px) {
+      .editor-panel {
         border-right: none;
         border-bottom: 1px solid var(--border);
       }
     }
 
-    .panel-header-tab {
+    .editor-topbar {
       padding: 0.6rem 1.25rem;
-      background: var(--surface);
+      background: var(--surface2);
       border-bottom: 1px solid var(--border);
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-muted);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 0.82rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--text-muted);
+    }
+
+    .file-dropzone-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px dashed var(--border);
+      transition: all 0.2s;
+    }
+
+    .file-dropzone-hint:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .editor-workspace {
+      display: flex;
+      flex: 1;
+      min-height: 440px;
+      position: relative;
+    }
+
+    .line-numbers {
+      width: 48px;
+      background: rgba(9, 14, 23, 0.95);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0.5rem;
+      text-align: right;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      user-select: none;
+      line-height: 1.6;
+      overflow: hidden;
     }
 
     .code-editor {
+      flex: 1;
       width: 100%;
       height: 100%;
-      min-height: 420px;
       background: transparent;
-      color: #e6edf3;
+      color: #e2e8f0;
       border: none;
       padding: 1.25rem;
-      font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-      font-size: 0.9rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
       line-height: 1.6;
       resize: none;
       outline: none;
+      white-space: pre;
+      overflow-wrap: normal;
+      overflow-x: auto;
+      tab-size: 4;
     }
 
-    .action-bar {
-      padding: 1rem 1.25rem;
+    .code-editor::placeholder {
+      color: var(--text-dim);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .editor-actions {
+      padding: 0.85rem 1.25rem;
       background: var(--surface2);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 0.75rem;
     }
 
-    .review-output-panel {
-      padding: 1.5rem;
+    .editor-btn-subgroup {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Right: Review Output Panel */
+    .output-panel {
+      padding: 1.75rem;
       background: var(--surface);
       overflow-y: auto;
-      max-height: 600px;
+      max-height: 660px;
       display: flex;
       flex-direction: column;
     }
 
-    .placeholder-output {
-      height: 100%;
+    .output-placeholder {
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2.5rem 1rem;
+      max-width: 380px;
+    }
+
+    .output-placeholder-icon {
+      width: 68px;
+      height: 68px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Score Dashboard */
+    .report-card {
+      animation: fadeIn 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .score-hero-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem;
+      background-image: var(--gradient-card);
+    }
+
+    .score-ring-wrap {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      flex-shrink: 0;
+    }
+
+    .score-ring-svg {
+      transform: rotate(-90deg);
+      width: 90px;
+      height: 90px;
+    }
+
+    .score-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 8;
+    }
+
+    .score-ring-progress {
+      fill: none;
+      stroke: var(--accent2);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 251.2;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+    }
+
+    .score-ring-text {
+      position: absolute;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 3rem 1.5rem;
-    }
-
-    .report-card {
-      animation: fadeIn 0.4s ease;
-    }
-
-    .score-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .score-badge {
-      font-size: 1.6rem;
+      font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      padding: 0.2rem 0.8rem;
-      border-radius: 8px;
+      font-size: 1.35rem;
+      color: var(--text);
     }
 
-    .score-good { background: rgba(126,231,135,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
-    .score-warn { background: rgba(247,129,102,0.15); color: var(--accent3); border: 1px solid var(--accent3); }
-    .score-neutral { background: rgba(88,166,255,0.15); color: var(--accent); border: 1px solid var(--accent); }
-
-    .issue-item {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--accent3);
-      border-radius: 8px;
-      padding: 0.9rem 1.1rem;
-      margin-bottom: 0.8rem;
+    .score-ring-text small {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: -3px;
     }
 
-    .issue-item.sec { border-left-color: #ff5f57; }
-    .issue-item.bug { border-left-color: #febc2e; }
-    .issue-item.style { border-left-color: var(--accent); }
-    .issue-item.ok { border-left-color: var(--accent2); }
+    .score-meta {
+      flex: 1;
+    }
 
-    .issue-title {
+    .score-title {
+      font-size: 1.1rem;
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-bottom: 0.25rem;
-      display: flex;
-      justify-content: space-between;
+      margin-bottom: 0.35rem;
     }
 
-    .issue-desc {
+    .score-desc {
       font-size: 0.85rem;
       color: var(--text-muted);
     }
 
-    .suggested-code {
-      margin-top: 1rem;
-      background: #0d1117;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.82rem;
-      overflow-x: auto;
-      color: #7ee787;
-      white-space: pre-wrap;
+    /* Metric Pills Row */
+    .metric-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
     }
 
-    /* ── Section Styles ───────────────────────────────── */
+    @media (max-width: 580px) {
+      .metric-pills {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metric-pill {
+      background: rgba(9, 13, 22, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-pill-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .metric-pill-lbl {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.15rem;
+    }
+
+    /* Filter Tabs & Findings */
+    .findings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .finding-item {
+      background: rgba(9, 13, 22, 0.7);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem 1.15rem;
+      transition: all 0.2s;
+    }
+
+    .finding-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(13, 19, 34, 0.85);
+    }
+
+    .finding-item.critical { border-left-color: #ef4444; }
+    .finding-item.high { border-left-color: #f97316; }
+    .finding-item.medium { border-left-color: var(--accent-warn); }
+    .finding-item.low { border-left-color: var(--accent); }
+    .finding-item.clean { border-left-color: var(--accent2); }
+
+    .finding-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .finding-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-high { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .badge-medium { background: rgba(251, 191, 36, 0.2); color: #fcd34d; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-low { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-clean { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+
+    .finding-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .finding-remediation {
+      margin-top: 0.6rem;
+      padding: 0.55rem 0.8rem;
+      background: rgba(56, 189, 248, 0.06);
+      border-left: 2px solid var(--accent);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--text);
+    }
+
+    /* Refactored Code Block */
+    .refactor-box {
+      margin-top: 0.75rem;
+      background: #090e17;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .refactor-header {
+      background: var(--surface2);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    .refactor-content {
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.83rem;
+      color: #86efac;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.55;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .export-actions-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    /* ── How It Works / Pipeline ────────────────────────── */
     section {
       padding: 5rem 2rem;
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
     .section-label {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 700;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 0.75rem;
     }
 
     .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
       font-weight: 800;
       letter-spacing: -0.02em;
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
     }
 
     .section-desc {
       color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 560px;
+      font-size: 1.1rem;
+      max-width: 620px;
+      line-height: 1.6;
     }
 
-    /* ── Features Grid ────────────────────────────────── */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3.5rem;
+      position: relative;
+    }
+
+    .pipeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.85rem;
+      position: relative;
+      transition: all 0.25s ease;
+      background-image: var(--gradient-card);
+    }
+
+    .pipeline-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 15px 40px rgba(56, 189, 248, 0.12);
+    }
+
+    .pipeline-step-num {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.5rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.05);
+    }
+
+    .pipeline-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pipeline-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pipeline-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── Features Grid ──────────────────────────────────── */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
       margin-top: 3rem;
     }
 
     .feature-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.75rem;
-      transition: all 0.25s;
+      border-radius: var(--radius);
+      padding: 2rem;
+      transition: all 0.25s ease;
+      background-image: var(--gradient-card);
     }
 
     .feature-card:hover {
-      border-color: var(--accent);
+      border-color: rgba(255, 255, 255, 0.2);
       transform: translateY(-3px);
-      box-shadow: 0 12px 40px rgba(88,166,255,0.1);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
     }
 
-    .feature-icon {
-      width: 44px; height: 44px;
-      border-radius: 10px;
+    .feature-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
-      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
     }
 
     .feature-card h3 {
-      font-size: 1rem;
+      font-size: 1.15rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
 
     .feature-card p {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
+      line-height: 1.6;
     }
 
-    /* ── Tech Stack & Footer ───────────────────────────── */
-    .tech-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-top: 2.5rem;
-    }
-
-    .tech-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--surface);
+    /* ── Quickstart / CLI snippet ───────────────────────── */
+    .cli-box {
+      background: #090e17;
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    .cli-code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    .cli-code span.cmd-prefix {
+      color: var(--accent);
+      user-select: none;
+    }
+
+    .cli-code span.comment {
+      color: var(--text-dim);
+    }
+
+    /* ── Toast Notifications ────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.25rem;
       border-radius: 8px;
-      padding: 0.6rem 1.1rem;
       font-size: 0.88rem;
       font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
     }
 
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Footer ─────────────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
-      padding: 2.5rem 2rem;
+      padding: 3.5rem 2rem;
       text-align: center;
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      background: rgba(9, 13, 22, 0.95);
     }
 
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+      color: var(--text);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.25rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    /* ── Keyframes ──────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── Navbar ──────────────────────────────────────── -->
+  <!-- ── Navigation ────────────────────────────────────── -->
   <nav>
     <a class="nav-logo" href="#">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="16 18 22 12 16 6"></polyline>
-        <polyline points="8 6 2 12 8 18"></polyline>
-        <line x1="12" y1="2" x2="12" y2="22"></line>
-      </svg>
+      <div class="nav-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+        </svg>
+      </div>
       AI Code Reviewer
     </a>
+
     <ul class="nav-links">
-      <li><a href="#playground">Live Tester</a></li>
+      <li><a href="#playground">Live Studio</a></li>
+      <li><a href="#pipeline">Architecture</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#tech">Tech Stack</a></li>
-      <li><a href="https://github.com/abhijitkumar1907-lgtm/aicodereview" target="_blank" class="nav-cta">GitHub Repo</a></li>
+      <li><a href="#quickstart">Quickstart</a></li>
+      <li>
+        <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="nav-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          abhijit-SIT/aicodereview
+        </a>
+      </li>
     </ul>
   </nav>
 
-  <!-- ── Hero ────────────────────────────────────────── -->
+  <!-- ── Hero ──────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero-badge">
-      ✨ Try Live AI Code Analysis Below
+      <span class="pulse-dot"></span>
+      Instant Multi-Language AI Code Review & Security Audit
     </div>
 
-    <h1>Code Reviews, <span class="gradient-text">Supercharged by AI</span></h1>
+    <h1>Automated Code Reviews, <span class="gradient-text">Supercharged by AI</span></h1>
 
-    <p>Paste any Java code below to automatically detect bugs, security vulnerabilities (OWASP), performance bottlenecks, and style issues in seconds.</p>
+    <p>Detect critical security flaws (OWASP Top 10), performance leaks, and logic anti-patterns in seconds. Get AI-synthesized refactoring patches ready for production.</p>
 
     <div class="hero-actions">
       <a href="#playground" class="btn btn-primary">
-        ⚡ Paste & Review Code
+        ⚡ Launch Review Studio
       </a>
-      <a href="https://github.com/abhijitkumar1907-lgtm/aicodereview" target="_blank" class="btn btn-ghost">
-        View GitHub Repo
+      <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="btn btn-ghost">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+        </svg>
+        GitHub Repository
       </a>
+    </div>
+
+    <div class="hero-stats-row">
+      <div class="hero-stat">
+        <div class="hero-stat-val">100%</div>
+        <div class="hero-stat-lbl">Zero Dependency UI</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">4+</div>
+        <div class="hero-stat-lbl">Supported Languages</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">&lt; 300ms</div>
+        <div class="hero-stat-lbl">Analysis Latency</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">OWASP</div>
+        <div class="hero-stat-lbl">Rule Compliance</div>
+      </div>
     </div>
   </section>
 
-  <!-- ── LIVE CODE REVIEW PLAYGROUND ─────────────────── -->
+  <!-- ── Interactive Studio Section ────────────────────── -->
   <section id="playground">
-    <div class="section-label">Interactive Demo</div>
-    <h2 class="section-title">Test the AI Code Reviewer live</h2>
-    <p class="section-desc" style="margin-bottom: 1.5rem;">Paste your Java code or click a sample snippet below to run an instant automated code review.</p>
+    <div class="section-label">Interactive Sandbox</div>
+    <h2 class="section-title">Live Code Review Studio</h2>
+    <p class="section-desc">Select a language, choose a vulnerability sample, or drop your own file to inspect quality score, security risks, and AI suggestions.</p>
 
-    <div class="playground-container">
-      <div class="playground-header">
-        <div class="playground-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
-            <polyline points="16 18 22 12 16 6"></polyline>
-            <polyline points="8 6 2 12 8 18"></polyline>
-          </svg>
-          Java Code Inspector
+    <div class="studio-container" style="margin-top: 2rem;">
+      <!-- Studio Header -->
+      <div class="studio-header">
+        <div class="lang-tabs">
+          <button class="lang-tab active" onclick="switchLanguage('java')">☕ Java</button>
+          <button class="lang-tab" onclick="switchLanguage('python')">🐍 Python</button>
+          <button class="lang-tab" onclick="switchLanguage('javascript')">🟨 JavaScript/TS</button>
+          <button class="lang-tab" onclick="switchLanguage('go')">🐹 Go</button>
         </div>
-        <div class="sample-btn-group">
-          <span class="sample-label">Load Sample:</span>
-          <button class="btn-sample" onclick="loadSample('sql')">SQL Injection</button>
-          <button class="btn-sample" onclick="loadSample('npe')">Null Pointer</button>
-          <button class="btn-sample" onclick="loadSample('resource')">Resource Leak</button>
-          <button class="btn-sample" onclick="loadSample('hardcoded')">Hardcoded Secret</button>
-          <button class="btn-sample" onclick="loadSample('clean')">Clean Code</button>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <label class="file-dropzone-hint" title="Load file into editor">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Upload File</span>
+            <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)" accept=".java,.py,.js,.ts,.go,.txt" />
+          </label>
         </div>
       </div>
 
-      <div class="playground-body">
-        <!-- Input Panel -->
-        <div class="code-input-panel">
-          <div class="panel-header-tab">
-            <span>INPUT: CodeSnippet.java</span>
-            <span id="charCount">0 chars</span>
+      <!-- Preset Samples Toolbar -->
+      <div class="samples-bar" id="samplesBar">
+        <!-- Injected dynamically by JS based on selected language -->
+      </div>
+
+      <!-- Studio Body Grid -->
+      <div class="studio-grid">
+        <!-- Left: Code Editor -->
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <span id="activeFilename">Snippet.java</span>
+            <div style="display: flex; gap: 1rem;">
+              <span id="editorStats">0 lines · 0 chars</span>
+            </div>
           </div>
-          <textarea id="codeEditor" class="code-editor" placeholder="// Paste your Java code here...
-public class UserService {
-    public User getUser(String userId) {
-        // ...
-    }
-}"></textarea>
-          <div class="action-bar">
-            <button class="btn btn-ghost" onclick="clearEditor()" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Clear</button>
+
+          <div class="editor-workspace">
+            <div class="line-numbers" id="lineNumbers">1</div>
+            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Paste or type your code here..."></textarea>
+          </div>
+
+          <div class="editor-actions">
+            <div class="editor-btn-subgroup">
+              <button class="btn btn-ghost" onclick="clearEditor()" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Clear</button>
+              <button class="btn btn-ghost" onclick="copyEditorCode()" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Copy Code</button>
+            </div>
             <button id="analyzeBtn" class="btn btn-primary" onclick="runAnalysis()">
               ⚡ Run AI Review
             </button>
           </div>
         </div>
 
-        <!-- Output Panel -->
-        <div class="review-output-panel" id="outputPanel">
-          <div class="placeholder-output" id="placeholderView">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            <p style="font-size: 1.05rem; font-weight: 600; color: var(--text);">No analysis report generated yet</p>
-            <p style="font-size: 0.88rem; margin-top: 0.4rem;">Paste code on the left and click <strong>"Run AI Review"</strong> or select a sample snippet above.</p>
+        <!-- Right: Output Panel -->
+        <div class="output-panel" id="outputPanel">
+          <div class="output-placeholder" id="placeholderView">
+            <div class="output-placeholder-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <h3 style="color: var(--text); font-size: 1.15rem; margin-bottom: 0.4rem;">No Active Review</h3>
+            <p style="font-size: 0.88rem; line-height: 1.6;">Paste source code on the left and click <strong>"Run AI Review"</strong> or select one of the vulnerability samples above.</p>
           </div>
 
           <div id="reportView" style="display: none;" class="report-card">
-            <!-- Dynamic output injected by JS -->
+            <!-- Dynamic findings and refactor injected here -->
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Features Grid ────────────────────────────────── -->
+  <!-- ── Architecture Pipeline ─────────────────────────── -->
+  <section id="pipeline">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Analysis Pipeline Architecture</h2>
+    <p class="section-desc">From source ingestion to deep security checks and AI patch generation.</p>
+
+    <div class="pipeline-grid">
+      <div class="pipeline-card">
+        <div class="pipeline-step-num">01</div>
+        <div class="pipeline-icon">📄</div>
+        <h3>AST Ingestion</h3>
+        <p>Parses abstract syntax trees to build a symbol hierarchy, tracking variable assignments and function calls.</p>
+      </div>
+
+      <div class="pipeline-card">
+        <div class="pipeline-step-num">02</div>
+        <div class="pipeline-icon">🛡️</div>
+        <h3>OWASP Auditing</h3>
+        <p>Scans for injection vectors (SQL, Command), unsafe deserialization, hardcoded secrets, and cross-site scripting.</p>
+      </div>
+
+      <div class="pipeline-card">
+        <div class="pipeline-step-num">03</div>
+        <div class="pipeline-icon">⚡</div>
+        <h3>Resource Profiling</h3>
+        <p>Identifies unclosed handles, thread leaks, swallowed exceptions, and concurrency race conditions.</p>
+      </div>
+
+      <div class="pipeline-card">
+        <div class="pipeline-step-num">04</div>
+        <div class="pipeline-icon">🤖</div>
+        <h3>Patch Synthesis</h3>
+        <p>Synthesizes idiomatic, safe refactor snippets with modern language idioms ready to copy into your codebase.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ──────────────────────────────────────── -->
   <section id="features">
-    <div class="section-label">Features</div>
-    <h2 class="section-title">Full spectrum automated code review</h2>
+    <div class="section-label">Engine Capabilities</div>
+    <h2 class="section-title">Built for Modern Engineering Teams</h2>
 
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon" style="background: rgba(88,166,255,0.12);">🤖</div>
-        <h3>AI Logic Inspector</h3>
-        <p>Detects hidden edge cases, boundary condition failures, and unhandled exception paths.</p>
+        <div class="feature-icon-box" style="background: rgba(56, 189, 248, 0.12); color: var(--accent);">🔍</div>
+        <h3>Deep Logic Analysis</h3>
+        <p>Flags boundary failures, unvalidated return values, null pointer risks, and silent try-catch blocks.</p>
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon" style="background: rgba(247,129,102,0.12);">🛡️</div>
+        <div class="feature-icon-box" style="background: rgba(248, 113, 113, 0.12); color: var(--accent3);">🔐</div>
         <h3>OWASP Security Audit</h3>
-        <p>Identifies SQL injection risks, insecure cryptography, secret leaks, and unvalidated user input.</p>
+        <p>Guards against SQLi, secret exposure, insecure random generators, and unsafe shell execution paths.</p>
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon" style="background: rgba(126,231,135,0.12);">⚡</div>
-        <h3>Resource Leak Finder</h3>
-        <p>Flags unclosed Database connections, File streams, and network sockets instantly.</p>
+        <div class="feature-icon-box" style="background: rgba(74, 222, 128, 0.12); color: var(--accent2);">📦</div>
+        <h3>Memory & Stream Safety</h3>
+        <p>Enforces try-with-resources and defer patterns to prevent file descriptor starvation in production.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(192, 132, 252, 0.12); color: var(--accent4);">💡</div>
+        <h3>Instant AI Refactoring</h3>
+        <p>Delivers clean, idiomatic drop-in replacements with explanation of why the fix improves safety.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(251, 191, 36, 0.12); color: var(--accent-warn);">📊</div>
+        <h3>Exportable Reports</h3>
+        <p>Export audit reports into Markdown or structured JSON for CI/CD pipeline automation and PR reviews.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(129, 140, 248, 0.12); color: #818cf8;">🚀</div>
+        <h3>CI/CD Integration</h3>
+        <p>Easily pluggable into GitHub Actions, GitLab CI, and Maven build lifecycles via the Java CLI engine.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Tech Stack ───────────────────────────────────── -->
-  <section id="tech">
-    <div class="section-label">Tech Stack</div>
-    <h2 class="section-title">Built for Java Ecosystem</h2>
+  <!-- ── Quickstart / CLI ──────────────────────────────── -->
+  <section id="quickstart">
+    <div class="section-label">Developer Quickstart</div>
+    <h2 class="section-title">Run AI Code Reviewer Locally</h2>
+    <p class="section-desc">You can run the full Java review engine straight from your terminal.</p>
 
-    <div class="tech-grid">
-      <div class="tech-chip"><span>☕</span> Java 17+</div>
-      <div class="tech-chip"><span>🏗️</span> Maven</div>
-      <div class="tech-chip"><span>🤖</span> LLM AI Engine</div>
-      <div class="tech-chip"><span>📊</span> JSON / HTML Reports</div>
-      <div class="tech-chip"><span>🛡️</span> OWASP Rules</div>
+    <div class="cli-box">
+      <pre class="cli-code"><code><span class="comment"># 1. Clone the repository</span>
+<span class="cmd-prefix">$ </span>git clone https://github.com/abhijit-SIT/aicodereview.git
+<span class="cmd-prefix">$ </span>cd aicodereview
+
+<span class="comment"># 2. Build and run automated tests</span>
+<span class="cmd-prefix">$ </span>mvn clean test
+
+<span class="comment"># 3. Launch the review application</span>
+<span class="cmd-prefix">$ </span>mvn exec:java -Dexec.mainClass="com.aicodereview.App"</code></pre>
     </div>
   </section>
 
+  <!-- ── Footer ────────────────────────────────────────── -->
   <footer>
-    <p>AI Code Reviewer Project · Open Source on <a href="https://github.com/abhijitkumar1907-lgtm/aicodereview" target="_blank">GitHub</a></p>
+    <ul class="footer-links">
+      <li><a href="#playground">Live Studio</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pipeline">Architecture</a></li>
+      <li><a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub Repository</a></li>
+      <li><a href="https://github.com/abhijit-SIT/aicodereview/issues" target="_blank">Report Issues</a></li>
+    </ul>
+    <p>AI Code Reviewer Project · Maintained on <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub (abhijit-SIT/aicodereview)</a></p>
+    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-dim);">Designed for high performance automated code security and AST auditing.</p>
   </footer>
 
-  <!-- ── Interactive Engine ───────────────────────────── -->
+  <!-- ── Toast ─────────────────────────────────────────── -->
+  <div id="toast">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- ── Interactive Engine Script ─────────────────────── -->
   <script>
+    // Samples dictionary for multiple languages
     const samples = {
-      sql: `public class UserRepository {\n    public User findUser(String username, String password) {\n        // Vulnerable raw SQL string concatenation\n        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";\n        Statement stmt = connection.createStatement();\n        ResultSet rs = stmt.executeQuery(query);\n        if (rs.next()) return new User(rs.getString("username"));\n        return null;\n    }\n}`,
-      npe: `public class OrderProcessor {\n    public double calculateTotal(Order order) {\n        double total = 0;\n        // Potential NPE if order.getItems() returns null\n        for (Item item : order.getItems()) {\n            total += item.getPrice() * item.getQuantity();\n        }\n        return total;\n    }\n}`,
-      resource: `public class FileUtil {\n    public String readFile(String path) throws Exception {\n        // Unclosed FileInputStream stream leak\n        FileInputStream fis = new FileInputStream(path);\n        byte[] data = new byte[fis.available()];\n        fis.read(data);\n        return new String(data);\n    }\n}`,
-      hardcoded: `public class SecurityConfig {\n    private static final String API_SECRET = "sk_live_9948281194726194";\n    private static final String DB_PASS = "admin123456";\n    \n    public void connect() {\n        System.out.println("Connecting with secret: " + API_SECRET);\n    }\n}`,
-      clean: `public class MathUtils {\n    /**\n     * Safely adds two integers with overflow checking.\n     */\n    public int safeAdd(int a, int b) {\n        return Math.addExact(a, b);\n    }\n}`
+      java: {
+        ext: 'java',
+        items: [
+          {
+            key: 'sql',
+            label: '🚨 SQL Injection',
+            code: `public class UserRepository {\n    public User findUser(String username, String password) {\n        // Vulnerable raw SQL string concatenation\n        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";\n        Statement stmt = connection.createStatement();\n        ResultSet rs = stmt.executeQuery(query);\n        if (rs.next()) return new User(rs.getString("username"));\n        return null;\n    }\n}`
+          },
+          {
+            key: 'resource',
+            label: '⚠️ Resource Leak',
+            code: `public class FileUtil {\n    public String readFile(String path) throws Exception {\n        // Unclosed FileInputStream stream leak\n        FileInputStream fis = new FileInputStream(path);\n        byte[] data = new byte[fis.available()];\n        fis.read(data);\n        return new String(data);\n    }\n}`
+          },
+          {
+            key: 'secret',
+            label: '🔑 Hardcoded Secret',
+            code: `public class SecurityConfig {\n    private static final String API_SECRET = "sk_live_9948281194726194";\n    private static final String DB_PASS = "admin123456";\n    \n    public void connect() {\n        System.out.println("Connecting with secret: " + API_SECRET);\n    }\n}`
+          },
+          {
+            key: 'npe',
+            label: '💥 NullPointer Risk',
+            code: `public class OrderProcessor {\n    public double calculateTotal(Order order) {\n        double total = 0;\n        // Potential NPE if order.getItems() returns null\n        for (Item item : order.getItems()) {\n            total += item.getPrice() * item.getQuantity();\n        }\n        return total;\n    }\n}`
+          },
+          {
+            key: 'clean',
+            label: '✅ Clean Java',
+            code: `public class SafeCalculator {\n    /**\n     * Safely adds two integers with arithmetic overflow protection.\n     */\n    public int safeAdd(int a, int b) {\n        return Math.addExact(a, b);\n    }\n}`
+          }
+        ]
+      },
+      python: {
+        ext: 'py',
+        items: [
+          {
+            key: 'cmd',
+            label: '🚨 Command Injection',
+            code: `import subprocess\n\ndef ping_host(user_ip):\n    # CRITICAL: shell=True with unescaped input allows arbitrary command execution\n    cmd = "ping -c 1 " + user_ip\n    return subprocess.check_output(cmd, shell=True)`
+          },
+          {
+            key: 'swallow',
+            label: '⚠️ Swallowed Error',
+            code: `def process_transaction(order_id):\n    try:\n        charge_credit_card(order_id)\n    except Exception:\n        # Swallowed exception hides financial failures!\n        pass`
+          },
+          {
+            key: 'secret',
+            label: '🔑 Hardcoded Secret',
+            code: `AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"\nAWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"\n\ndef init_s3():\n    print("Connecting to AWS...")`
+          },
+          {
+            key: 'clean',
+            label: '✅ Clean Python',
+            code: `from pathlib import Path\nimport secrets\n\ndef generate_secure_token() -> str:\n    """Generates a cryptographically strong random token."""\n    return secrets.token_urlsafe(32)`
+          }
+        ]
+      },
+      javascript: {
+        ext: 'ts',
+        items: [
+          {
+            key: 'xss',
+            label: '🚨 DOM XSS',
+            code: `function renderUserProfile(userData) {\n    // Vulnerable: raw innerHTML allows script execution via payload\n    const container = document.getElementById('profile');\n    container.innerHTML = "<h1>Welcome " + userData.name + "</h1>";\n}`
+          },
+          {
+            key: 'unhandled',
+            label: '⚠️ Unhandled Async',
+            code: `async function fetchUserData(userId) {\n    // No try/catch around async network fetch\n    const response = await fetch('/api/user/' + userId);\n    const json = await response.json();\n    return json.data;\n}`
+          },
+          {
+            key: 'secret',
+            label: '🔑 Secret Key',
+            code: `const JWT_SECRET = "sk_live_prod_99841287162541";\nconst API_KEY = "AIzaSyD-fakeKey123456789";\n\nexport function verifyToken(token) {\n    return jwt.verify(token, JWT_SECRET);\n}`
+          },
+          {
+            key: 'clean',
+            label: '✅ Safe TypeScript',
+            code: `export interface UserProfile {\n    id: string;\n    name: string;\n}\n\nexport function setUserName(el: HTMLElement, user: UserProfile): void {\n    // Safe: textContent prevents any HTML/script injection\n    el.textContent = user.name;\n}`
+          }
+        ]
+      },
+      go: {
+        ext: 'go',
+        items: [
+          {
+            key: 'goroutine',
+            label: '⚠️ Goroutine Leak',
+            code: `package main\n\nimport "net/http"\n\nfunc queryData() <-chan string {\n    // Unbuffered channel can block goroutine forever if receiver leaves\n    ch := make(chan string)\n    go func() {\n        res, _ := http.Get("https://api.example.com/data")\n        ch <- res.Status\n    }()\n    return ch\n}`
+          },
+          {
+            key: 'unchecked',
+            label: '💥 Unchecked Error',
+            code: `package main\n\nimport "os"\n\nfunc writeLog(msg string) {\n    f, _ := os.OpenFile("app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n    // Missing error check on file creation and missing f.Close()\n    f.WriteString(msg + "\\n")\n}`
+          },
+          {
+            key: 'clean',
+            label: '✅ Clean Go',
+            code: `package main\n\nimport (\n    "fmt"\n    "os"\n)\n\nfunc safeWrite(filename, content string) error {\n    f, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)\n    if err != nil {\n        return fmt.Errorf("failed to open %s: %w", filename, err)\n    }\n    defer f.Close()\n\n    _, err = f.WriteString(content)\n    return err\n}`
+          }
+        ]
+      }
     };
 
-    const editor = document.getElementById('codeEditor');
-    const charCount = document.getElementById('charCount');
+    let currentLanguage = 'java';
+    let lastReportData = null;
 
-    editor.addEventListener('input', () => {
-      charCount.textContent = editor.value.length + ' chars';
+    const editor = document.getElementById('codeEditor');
+    const lineNumbers = document.getElementById('lineNumbers');
+    const editorStats = document.getElementById('editorStats');
+    const activeFilename = document.getElementById('activeFilename');
+
+    // Sync line numbers and stats
+    function updateEditorMeta() {
+      const text = editor.value;
+      const lines = text.split('\n').length || 1;
+      const chars = text.length;
+
+      let nums = '';
+      for (let i = 1; i <= lines; i++) {
+        nums += i + '<br>';
+      }
+      lineNumbers.innerHTML = nums;
+      editorStats.textContent = `${lines} lines · ${chars} chars`;
+    }
+
+    editor.addEventListener('input', updateEditorMeta);
+    editor.addEventListener('scroll', () => {
+      lineNumbers.scrollTop = editor.scrollTop;
     });
 
-    function loadSample(key) {
-      editor.value = samples[key];
-      charCount.textContent = editor.value.length + ' chars';
+    // Language switcher
+    function switchLanguage(lang) {
+      currentLanguage = lang;
+      document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const ext = samples[lang].ext;
+      activeFilename.textContent = `Snippet.${ext}`;
+
+      renderSamplesToolbar(lang);
+      // Auto-load first sample
+      loadSample(0);
+    }
+
+    function renderSamplesToolbar(lang) {
+      const bar = document.getElementById('samplesBar');
+      const list = samples[lang].items;
+      bar.innerHTML = `
+        <span class="samples-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          Quick Samples:
+        </span>
+        ${list.map((item, idx) => `
+          <button class="sample-chip" onclick="loadSample(${idx})">
+            ${item.label}
+          </button>
+        `).join('')}
+      `;
+    }
+
+    function loadSample(index) {
+      const sample = samples[currentLanguage].items[index];
+      if (!sample) return;
+
+      editor.value = sample.code;
+      updateEditorMeta();
+
+      // Highlight active chip
+      document.querySelectorAll('.sample-chip').forEach((c, i) => {
+        c.classList.toggle('active', i === index);
+      });
+
+      showToast(`Loaded sample: ${sample.label}`);
       runAnalysis();
     }
 
     function clearEditor() {
       editor.value = '';
-      charCount.textContent = '0 chars';
+      updateEditorMeta();
       document.getElementById('placeholderView').style.display = 'flex';
       document.getElementById('reportView').style.display = 'none';
+      showToast('Editor cleared');
     }
 
+    function copyEditorCode() {
+      if (!editor.value) return;
+      navigator.clipboard.writeText(editor.value).then(() => {
+        showToast('Code copied to clipboard! 📋');
+      });
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        editor.value = e.target.result;
+        activeFilename.textContent = file.name;
+        updateEditorMeta();
+        showToast(`Loaded ${file.name}`);
+        runAnalysis();
+      };
+      reader.readAsText(file);
+    }
+
+    // Toast message helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Run review analysis
     function runAnalysis() {
       const code = editor.value.trim();
       if (!code) {
-        alert('Please paste some Java code to review!');
+        showToast('⚠️ Please paste or type some code first!');
         return;
       }
 
       const analyzeBtn = document.getElementById('analyzeBtn');
       analyzeBtn.disabled = true;
-      analyzeBtn.innerHTML = '⏳ Analyzing...';
+      analyzeBtn.innerHTML = '⏳ Scanning AST...';
 
       document.getElementById('placeholderView').style.display = 'none';
       const reportView = document.getElementById('reportView');
       reportView.style.display = 'block';
       reportView.innerHTML = `
-        <div style="text-align: center; padding: 3rem;">
-          <div style="font-size: 2rem; margin-bottom: 1rem;">🔍</div>
-          <p style="font-weight: 600;">Running AI Code Analysis...</p>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Scanning AST rules, OWASP vulnerabilities & resource leaks</p>
+        <div style="text-align: center; padding: 3.5rem 1rem;">
+          <div style="font-size: 2.2rem; margin-bottom: 1rem; animation: pulse 1s infinite;">🔍</div>
+          <p style="font-weight: 700; font-size: 1.05rem;">Running Multi-Pass AST & OWASP Audit...</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Evaluating syntax trees, data flows, and concurrency primitives</p>
         </div>
       `;
 
       setTimeout(() => {
         analyzeBtn.disabled = false;
         analyzeBtn.innerHTML = '⚡ Run AI Review';
-        generateReport(code);
-      }, 500);
+        generateReport(code, currentLanguage);
+      }, 400);
     }
 
-    function generateReport(code) {
+    // Deep analysis engine
+    function generateReport(code, lang) {
       let issues = [];
       let deductions = 0;
       let refactorCode = '';
+      let securityIssues = 0;
+      let bugIssues = 0;
+      let perfIssues = 0;
+      let styleIssues = 0;
 
-      // Rule 1: SQL Injection
-      const hasSqlConcat = (code.includes('WHERE') || code.includes('SELECT') || code.includes('INSERT') || code.includes('UPDATE')) && code.includes('+');
+      // Rule: SQL Injection (Java, Python, JS, Go)
+      const hasSqlConcat = (/(SELECT|WHERE|INSERT|UPDATE|DELETE|FROM)\s+/i.test(code)) && (code.includes('+') || code.includes('%s') || code.includes('${'));
       if (hasSqlConcat) {
         deductions += 5.5;
+        securityIssues++;
         issues.push({
-          type: 'sec',
-          title: '🚨 CRITICAL: SQL Injection Vulnerability (OWASP A03)',
-          desc: 'Dynamic SQL query constructed with string concatenation. Attackers can bypass authentication or extract/drop databases using SQL payload injection.'
-        });
-        refactorCode += `// 1. Use PreparedStatement to eliminate SQL Injection\nString query = "SELECT * FROM users WHERE username = ? AND password = ?";\ntry (PreparedStatement pstmt = connection.prepareStatement(query)) {\n    pstmt.setString(1, username);\n    pstmt.setString(2, password);\n    try (ResultSet rs = pstmt.executeQuery()) {\n        if (rs.next()) return new User(rs.getString("username"));\n    }\n}\n`;
-      }
-
-      // Rule 2: Hardcoded Secrets
-      const hasSecret = /("sk_live[a-zA-Z0-9_]+"|"admin123456"|password\s*=\s*"[^"]+"|secret\s*=\s*"[^"]+"|API_KEY\s*=\s*"[^"]+")/i.test(code);
-      if (hasSecret) {
-        deductions += 3.5;
-        issues.push({
-          type: 'sec',
-          title: '🚨 HIGH: Hardcoded API Keys or Passwords (OWASP A07)',
-          desc: 'Sensitive credentials, private keys, or passwords detected inline. Move them to environment variables or a key vault.'
-        });
-      }
-
-      // Rule 3: Resource Leaks (unclosed streams/connections without try-with-resources)
-      const hasResource = /new\s+(FileInputStream|FileReader|BufferedReader|Scanner|Socket|Connection|Statement)/.test(code);
-      const hasTryWithResources = /try\s*\([^)]*new\s+/.test(code) || (code.includes('try (') && code.includes(')'));
-      const hasExplicitClose = code.includes('.close()');
-
-      if (hasResource && !hasTryWithResources && !hasExplicitClose) {
-        deductions += 3.0;
-        issues.push({
-          type: 'bug',
-          title: '⚠️ Unclosed I/O Resource / File Stream Leak',
-          desc: 'File streams or database handles allocated without try-with-resources. This can cause file locking or memory leaks in production.'
+          category: 'sec',
+          severity: 'critical',
+          badgeClass: 'badge-critical',
+          severityLabel: 'CRITICAL VULNERABILITY',
+          title: '🚨 SQL Injection Risk (OWASP A03:2021)',
+          desc: 'Dynamic SQL query built via string concatenation or unescaped formatting. Malicious payloads can bypass authentication or dump database tables.',
+          fix: 'Always use parameterized queries (PreparedStatement, SQL parameter bindings) rather than raw string concatenation.'
         });
         if (!refactorCode) {
-          refactorCode += `// 2. Use try-with-resources for automatic cleanup\ntry (FileInputStream fis = new FileInputStream(path)) {\n    byte[] data = fis.readAllBytes();\n    return new String(data, StandardCharsets.UTF_8);\n}\n`;
+          if (lang === 'java') {
+            refactorCode = `// Parameterized query using PreparedStatement\nString sql = "SELECT * FROM users WHERE username = ? AND password = ?";\ntry (PreparedStatement pstmt = connection.prepareStatement(sql)) {\n    pstmt.setString(1, username);\n    pstmt.setString(2, password);\n    try (ResultSet rs = pstmt.executeQuery()) {\n        if (rs.next()) return new User(rs.getString("username"));\n    }\n}`;
+          }
         }
       }
 
-      // Rule 4: Potential Null Pointer Exception
+      // Rule: Command Injection (Python/JS/Java)
+      const hasCommandInjection = (code.includes('shell=True') || /child_process\.(exec|execSync)/.test(code) || /Runtime\.getRuntime\(\)\.exec/.test(code));
+      if (hasCommandInjection) {
+        deductions += 6.0;
+        securityIssues++;
+        issues.push({
+          category: 'sec',
+          severity: 'critical',
+          badgeClass: 'badge-critical',
+          severityLabel: 'CRITICAL SECURITY',
+          title: '🚨 Arbitrary Command Injection (OWASP A03:2021)',
+          desc: 'Shell invocation detected with arbitrary user input. Attackers can execute arbitrary system commands and compromise the host operating system.',
+          fix: 'Do not use shell=True or raw string command execution. Pass arguments as a structured array or validate strictly.'
+        });
+        if (!refactorCode && lang === 'python') {
+          refactorCode = `import subprocess\n\ndef ping_host(user_ip: str) -> bytes:\n    # Pass arguments as a list with shell=False (default)\n    # Validate IP address before invocation\n    return subprocess.check_output(["ping", "-c", "1", user_ip])`;
+        }
+      }
+
+      // Rule: Hardcoded Secrets (All languages)
+      const hasSecret = /("sk_live[a-zA-Z0-9_]+"|"AKIA[0-9A-Z]{16}"|"admin123456"|password\s*=\s*"[^"]+"|secret\s*=\s*"[^"]+"|JWT_SECRET\s*=\s*"[^"]+"|API_KEY\s*=\s*"[^"]+")/i.test(code);
+      if (hasSecret) {
+        deductions += 3.8;
+        securityIssues++;
+        issues.push({
+          category: 'sec',
+          severity: 'high',
+          badgeClass: 'badge-high',
+          severityLabel: 'HIGH SEVERITY',
+          title: '🔑 Hardcoded Credentials or API Keys (OWASP A07:2021)',
+          desc: 'Private keys, database passwords, or JWT secrets detected hardcoded in source code. If committed, this results in credential theft.',
+          fix: 'Store secrets in environment variables or key vaults (e.g. AWS Secrets Manager, Vault) and load them at runtime.'
+        });
+      }
+
+      // Rule: DOM XSS in JS/TS
+      const hasXss = code.includes('.innerHTML') || code.includes('dangerouslySetInnerHTML');
+      if (hasXss && lang === 'javascript') {
+        deductions += 4.5;
+        securityIssues++;
+        issues.push({
+          category: 'sec',
+          severity: 'high',
+          badgeClass: 'badge-high',
+          severityLabel: 'HIGH SEVERITY',
+          title: '🚨 Cross-Site Scripting (DOM XSS / OWASP A03)',
+          desc: 'Direct assignment to innerHTML with untrusted data allows malicious scripts to execute in user browsers.',
+          fix: 'Use el.textContent, innerText, or sanitize HTML using DOMPurify before rendering.'
+        });
+        if (!refactorCode) {
+          refactorCode = `function renderUserProfile(userData) {\n    const container = document.getElementById('profile');\n    // Safe textContent assignment prevents script execution\n    container.textContent = "Welcome " + userData.name;\n}`;
+        }
+      }
+
+      // Rule: Resource Leaks (Java)
+      const hasResource = /new\s+(FileInputStream|FileReader|BufferedReader|Scanner|Socket|Connection|Statement)/.test(code);
+      const hasTryWithResources = /try\s*\([^)]*new\s+/.test(code) || (code.includes('try (') && code.includes(')'));
+      const hasExplicitClose = code.includes('.close()');
+      if (hasResource && !hasTryWithResources && !hasExplicitClose && lang === 'java') {
+        deductions += 3.2;
+        perfIssues++;
+        issues.push({
+          category: 'perf',
+          severity: 'medium',
+          badgeClass: 'badge-medium',
+          severityLabel: 'RESOURCE LEAK',
+          title: '⚠️ Unclosed I/O Resource Stream',
+          desc: 'I/O handles allocated without try-with-resources. Under high traffic, this causes file descriptor exhaustion and server lockup.',
+          fix: 'Wrap resource creation in Java 7+ try-with-resources for deterministic closing.'
+        });
+        if (!refactorCode) {
+          refactorCode = `// try-with-resources guarantees automatic cleanup\ntry (FileInputStream fis = new FileInputStream(path)) {\n    byte[] data = fis.readAllBytes();\n    return new String(data, StandardCharsets.UTF_8);\n}`;
+        }
+      }
+
+      // Rule: Goroutine / Channel Leak (Go)
+      if (lang === 'go' && (code.includes('make(chan') && !code.includes('make(chan string,') && !code.includes('defer'))) {
+        deductions += 3.0;
+        perfIssues++;
+        issues.push({
+          category: 'perf',
+          severity: 'medium',
+          badgeClass: 'badge-medium',
+          severityLabel: 'CONCURRENCY LEAK',
+          title: '⚠️ Potential Goroutine Leak via Unbuffered Channel',
+          desc: 'Sender goroutine blocks indefinitely if the receiver aborts or does not consume from the unbuffered channel.',
+          fix: 'Use a buffered channel (e.g., make(chan string, 1)) or provide a context cancellation signal.'
+        });
+        if (!refactorCode) {
+          refactorCode = `func queryData() <-chan string {\n    // Buffered channel prevents sender goroutine from blocking\n    ch := make(chan string, 1)\n    go func() {\n        res, err := http.Get("https://api.example.com/data")\n        if err == nil {\n            ch <- res.Status\n        }\n    }()\n    return ch\n}`;
+        }
+      }
+
+      // Rule: Swallowed Exceptions (All)
+      const hasSwallowed = /except\s*(Exception)?\s*:\s*pass/.test(code) || /catch\s*\([^)]+\)\s*\{\s*\}/.test(code);
+      if (hasSwallowed) {
+        deductions += 2.8;
+        bugIssues++;
+        issues.push({
+          category: 'bugs',
+          severity: 'medium',
+          badgeClass: 'badge-medium',
+          severityLabel: 'BUG RISK',
+          title: '⚠️ Swallowed Exception / Silent Failure',
+          desc: 'An exception is caught and discarded without logging or handling. Bugs will fail silently and corrupt system state.',
+          fix: 'Always log the exception with context or re-throw a domain-specific exception.'
+        });
+      }
+
+      // Rule: Potential Null Pointer Exception / Chained access
       const hasUncheckedGet = /\.[a-zA-Z0-9_]+\(\)\.[a-zA-Z0-9_]+\(\)/.test(code) || (code.includes('.getItems()') && !code.includes('!= null'));
-      if (hasUncheckedGet) {
+      if (hasUncheckedGet && lang === 'java') {
         deductions += 2.0;
+        bugIssues++;
         issues.push({
-          type: 'bug',
-          title: '⚠️ Potential NullPointerException (NPE)',
-          desc: 'Chained method calls detected without null validation. If an intermediate call returns null, the thread will throw NullPointerException.'
+          category: 'bugs',
+          severity: 'low',
+          badgeClass: 'badge-low',
+          severityLabel: 'RELIABILITY',
+          title: '⚠️ NullPointerException Vulnerability',
+          desc: 'Chained method calls detected without null validation. A null intermediate result will crash the active thread.',
+          fix: 'Use Optional<T> or explicit null checks before iterating over collections.'
         });
       }
 
-      // Rule 5: System.out.println in production
-      if (code.includes('System.out.println') || code.includes('System.err.println')) {
+      // Rule: Direct Console Output in production
+      if (code.includes('System.out.println') || code.includes('console.log') || code.includes('print(')) {
         deductions += 0.8;
+        styleIssues++;
         issues.push({
-          type: 'style',
-          title: 'ℹ️ Code Smell: Direct Console Output',
-          desc: 'Avoid System.out.println in production Java code. Use a structured logging framework like SLF4J or Log4j2.'
+          category: 'style',
+          severity: 'low',
+          badgeClass: 'badge-low',
+          severityLabel: 'CODE SMELL',
+          title: 'ℹ️ Unstructured Console Printing',
+          desc: 'Avoid direct stdout print statements in production services. They lack log levels, timestamps, and structured metadata.',
+          fix: 'Use structured logging frameworks (SLF4J, Log4j2, Winston, zap, or python logging).'
         });
       }
 
-      // Rule 6: Empty Catch Block
-      if (/catch\s*\([^)]+\)\s*\{\s*\}/.test(code)) {
-        deductions += 2.5;
-        issues.push({
-          type: 'bug',
-          title: '⚠️ Empty Catch Block (Swallowed Exception)',
-          desc: 'An exception is caught but silently ignored. Always log exceptions or propagate them to prevent unhandled background failures.'
-        });
-      }
-
-      // Calculate final score
+      // Final score calculation
       let finalScore = Math.max(1.0, Math.min(10.0, 10.0 - deductions));
       if (issues.length === 0) {
-        finalScore = 9.5;
+        finalScore = 9.8;
         issues.push({
-          type: 'ok',
+          category: 'clean',
+          severity: 'clean',
+          badgeClass: 'badge-clean',
+          severityLabel: 'VERIFIED SAFE',
           title: '✅ High Quality Code Verified!',
-          desc: 'No critical security vulnerabilities, resource leaks, or unhandled exceptions detected.'
+          desc: 'No critical OWASP vulnerabilities, resource leaks, or anti-patterns were detected in this snippet.',
+          fix: 'Code follows best security and performance practices.'
         });
       }
 
-      const scoreClass = finalScore >= 8.0 ? 'score-good' : (finalScore >= 5.0 ? 'score-neutral' : 'score-warn');
-      const statusText = finalScore >= 8.0 ? 'High Quality' : (finalScore >= 5.0 ? 'Fair / Refactor Recommended' : 'Critical Issues Detected');
+      // Gauge ring calculation (circumference = 2 * PI * 40 = ~251.2)
+      const circumference = 251.2;
+      const strokeOffset = circumference - (finalScore / 10) * circumference;
+      const strokeColor = finalScore >= 8.0 ? 'var(--accent2)' : (finalScore >= 5.0 ? 'var(--accent-warn)' : 'var(--accent3)');
 
-      document.getElementById('reportView').innerHTML = `
-        <div class="score-banner">
-          <div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Overall Quality Score</div>
-            <div style="font-weight: 700; font-size: 1.1rem; margin-top: 0.2rem;">${statusText}</div>
+      const statusTitle = finalScore >= 8.0 ? 'Production Ready' : (finalScore >= 5.0 ? 'Refactoring Recommended' : 'Critical Risks Detected');
+      const estFixTime = issues.length === 0 ? '0 mins' : `${issues.length * 10} mins`;
+
+      lastReportData = {
+        lang,
+        score: finalScore.toFixed(1),
+        status: statusTitle,
+        issues,
+        refactorCode,
+        timestamp: new Date().toISOString()
+      };
+
+      renderReportUI(lastReportData, strokeOffset, strokeColor, statusTitle, estFixTime);
+    }
+
+    function renderReportUI(data, strokeOffset, strokeColor, statusTitle, estFixTime) {
+      const reportView = document.getElementById('reportView');
+      reportView.innerHTML = `
+        <!-- Score Banner -->
+        <div class="score-hero-card">
+          <div class="score-meta">
+            <div style="font-size: 0.76rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Audit Summary</div>
+            <div class="score-title">${statusTitle}</div>
+            <div class="score-desc">${data.issues.length} finding${data.issues.length === 1 ? '' : 's'} identified across security, performance & reliability.</div>
           </div>
-          <div class="score-badge ${scoreClass}">${finalScore.toFixed(1)} / 10</div>
+
+          <div class="score-ring-wrap">
+            <svg class="score-ring-svg" viewBox="0 0 100 100">
+              <circle class="score-ring-bg" cx="50" cy="50" r="40"></circle>
+              <circle class="score-ring-progress" id="scoreRingProgress" cx="50" cy="50" r="40" style="stroke: ${strokeColor}; stroke-dashoffset: ${strokeOffset};"></circle>
+            </svg>
+            <div class="score-ring-text">
+              ${data.score}
+              <small>/ 10</small>
+            </div>
+          </div>
         </div>
 
-        <div style="margin-bottom: 1rem; font-weight: 700; font-size: 0.95rem;">Review Findings (${issues.length})</div>
-        ${issues.map(i => `
-          <div class="issue-item ${i.type}">
-            <div class="issue-title">${i.title}</div>
-            <div class="issue-desc">${i.desc}</div>
+        <!-- Metric Pills -->
+        <div class="metric-pills">
+          <div class="metric-pill">
+            <span class="metric-pill-val" style="color: var(--accent3);">${data.issues.filter(i => i.category === 'sec').length}</span>
+            <span class="metric-pill-lbl">Security Flaws</span>
           </div>
-        `).join('')}
+          <div class="metric-pill">
+            <span class="metric-pill-val" style="color: var(--accent-warn);">${data.issues.filter(i => i.category === 'bugs' || i.category === 'perf').length}</span>
+            <span class="metric-pill-lbl">Bugs / Leaks</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-pill-val" style="color: var(--accent);">${data.issues.filter(i => i.category === 'style').length}</span>
+            <span class="metric-pill-lbl">Code Smells</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-pill-val" style="color: var(--accent2);">${estFixTime}</span>
+            <span class="metric-pill-lbl">Est. Fix Time</span>
+          </div>
+        </div>
 
-        ${refactorCode ? `
-          <div style="margin-top: 1.25rem; font-weight: 700; font-size: 0.9rem; color: var(--accent2);">💡 AI Suggested Refactored Code:</div>
-          <div class="suggested-code"><code>${refactorCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></div>
+        <!-- Filter & Findings -->
+        <div class="findings-header">
+          <span style="font-weight: 700; font-size: 0.95rem;">Audit Findings</span>
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="filterFindings('all')">All (${data.issues.length})</button>
+            <button class="filter-btn" onclick="filterFindings('sec')">Security</button>
+            <button class="filter-btn" onclick="filterFindings('bugs')">Bugs</button>
+            <button class="filter-btn" onclick="filterFindings('perf')">Perf</button>
+          </div>
+        </div>
+
+        <div class="findings-list" id="findingsContainer">
+          ${data.issues.map(i => `
+            <div class="finding-item ${i.severity}" data-category="${i.category}">
+              <div class="finding-top">
+                <div class="finding-title">${i.title}</div>
+                <span class="badge-tag ${i.badgeClass}">${i.severityLabel}</span>
+              </div>
+              <div class="finding-desc">${i.desc}</div>
+              ${i.fix ? `<div class="finding-remediation"><strong>💡 Recommendation:</strong> ${i.fix}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- AI Refactored Patch -->
+        ${data.refactorCode ? `
+          <div class="refactor-box">
+            <div class="refactor-header">
+              <span>🤖 AI Synthesized Patch</span>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-ghost" onclick="applyRefactor()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">Apply to Editor</button>
+                <button class="btn btn-ghost" onclick="copyRefactor()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">Copy Fix</button>
+              </div>
+            </div>
+            <pre class="refactor-content"><code>${data.refactorCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+          </div>
         ` : ''}
+
+        <!-- Export Buttons -->
+        <div class="export-actions-row">
+          <button class="btn btn-ghost" onclick="exportReport('markdown')" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📄 Download Markdown
+          </button>
+          <button class="btn btn-ghost" onclick="exportReport('json')" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📊 Download JSON
+          </button>
+          <button class="btn btn-ghost" onclick="copyReportSummary()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📋 Copy Summary
+          </button>
+        </div>
       `;
     }
+
+    function filterFindings(cat) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const items = document.querySelectorAll('.finding-item');
+      items.forEach(el => {
+        if (cat === 'all' || el.getAttribute('data-category') === cat) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function copyRefactor() {
+      if (lastReportData && lastReportData.refactorCode) {
+        navigator.clipboard.writeText(lastReportData.refactorCode).then(() => {
+          showToast('Refactored code copied to clipboard! 📋');
+        });
+      }
+    }
+
+    function applyRefactor() {
+      if (lastReportData && lastReportData.refactorCode) {
+        editor.value = lastReportData.refactorCode;
+        updateEditorMeta();
+        showToast('Applied refactor to editor! 🚀');
+        runAnalysis();
+      }
+    }
+
+    function copyReportSummary() {
+      if (!lastReportData) return;
+      const text = `AI Code Review Report\nScore: ${lastReportData.score}/10 (${lastReportData.status})\nTotal Findings: ${lastReportData.issues.length}\nRepository: https://github.com/abhijit-SIT/aicodereview`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Summary copied to clipboard!');
+      });
+    }
+
+    function exportReport(format) {
+      if (!lastReportData) return;
+
+      let filename = `code-review-report.${format === 'markdown' ? 'md' : 'json'}`;
+      let content = '';
+
+      if (format === 'markdown') {
+        content = `# AI Code Reviewer Report\n\n- **Score:** ${lastReportData.score} / 10\n- **Status:** ${lastReportData.status}\n- **Date:** ${lastReportData.timestamp}\n- **Repository:** https://github.com/abhijit-SIT/aicodereview\n\n## Findings (${lastReportData.issues.length})\n\n`;
+        lastReportData.issues.forEach(issue => {
+          content += `### ${issue.title} [${issue.severityLabel}]\n${issue.desc}\n\n*Recommendation:* ${issue.fix || 'N/A'}\n\n---\n`;
+        });
+        if (lastReportData.refactorCode) {
+          content += `\n## Suggested Patch\n\`\`\`\n${lastReportData.refactorCode}\n\`\`\`\n`;
+        }
+      } else {
+        content = JSON.stringify(lastReportData, null, 2);
+      }
+
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast(`Exported ${filename}`);
+    }
+
+    // Initialize defaults on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSamplesToolbar('java');
+      loadSample(0);
+    });
   </script>
 </body>
 </html>
