@@ -72,7 +72,7 @@ public class AIReviewer {
                 return Integer.parseInt(prop.trim());
             } catch (NumberFormatException ignored) {}
         }
-        return 45;
+        return 90;
     }
 
     /**
