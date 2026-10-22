@@ -18,6 +18,13 @@ public class ReviewResult {
 
     private String reviewDate;
 
+    // ── Computed scores (populated by ReviewService) ──
+    private double secScore;
+    private double qualScore;
+    private double maintScore;
+    private double overallScore;
+    private String verdict;
+
     public ReviewResult(String filename) {
         this.filename = filename;
         this.reviewDate = LocalDateTime.now().toString();
@@ -81,5 +88,49 @@ public class ReviewResult {
 
     public void setReviewDate(String reviewDate) {
         this.reviewDate = reviewDate;
+    }
+
+    // =========================================================
+    // SCORES
+    // =========================================================
+
+    public double getSecScore() {
+        return secScore;
+    }
+
+    public void setSecScore(double secScore) {
+        this.secScore = secScore;
+    }
+
+    public double getQualScore() {
+        return qualScore;
+    }
+
+    public void setQualScore(double qualScore) {
+        this.qualScore = qualScore;
+    }
+
+    public double getMaintScore() {
+        return maintScore;
+    }
+
+    public void setMaintScore(double maintScore) {
+        this.maintScore = maintScore;
+    }
+
+    public double getOverallScore() {
+        return overallScore;
+    }
+
+    public void setOverallScore(double overallScore) {
+        this.overallScore = overallScore;
+    }
+
+    public String getVerdict() {
+        return verdict;
+    }
+
+    public void setVerdict(String verdict) {
+        this.verdict = verdict;
     }
 }

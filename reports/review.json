@@ -382,4 +382,272 @@
   "aiReview" : "### Summary\n\nThe provided Java code snippet has a few minor issues that can be addressed for improved code quality. Here's a summary of the findings and suggested fixes:\n\n### Critical Issues\n\n1. **System.out at Line 1:**\n   - **Description:** This line outputs the value of `x` to the console.\n   - **Criticality:** This should be avoided or minimized for security reasons, as it prints sensitive information to the console.\n   - **Suggested Fix:** Replace `System.out.println(x);` with `System.out.println(\"Value of x: \" + x);`.\n\n2. **Magic Number at Line 1:**\n   - **Description:** The number `10` is used as a constant value.\n   - **Criticality:** Magic numbers can make the code harder to understand and maintain. They often indicate that the value is hard-coded and does not have a meaningful purpose.\n   - **Suggested Fix:** Replace `10` with a meaningful variable name, such as `defaultValue`, to enhance code clarity and maintainability.\n\n### Suggested Fixes\n\n1. **Replace `System.out.println(x);` with `System.out.println(\"Value of x: \" + x);`:**\n   ```java\n   public class TestCode { public static void main(String[] args) { int x = 10; System.out.println(\"Value of x: \" + x); } }\n   ```\n\n2. **Replace `10` with a meaningful variable name, such as `defaultValue`:**\n   ```java\n   public class TestCode { public static void main(String[] args) { int x = 10; System.out.println(\"Value of x: \" + x); } }\n   ```\n\n### Overall Assessment\n\nThe code is relatively simple and follows basic Java coding conventions. However, the use of `System.out` and the hard-coded value `10` should be addressed to enhance security and maintainability. The suggested fixes make the code more readable and secure by replacing `System.out.println(x);` with a descriptive message and replacing the hard-coded value with a meaningful variable name.\n\n### Conclusion\n\nThe code is well-written and follows basic Java conventions. However, it contains two critical issues that should be addressed to enhance security and maintainability. The suggested fixes make the code more readable and secure.",
   "filePath" : null,
   "reviewDate" : "2026-10-09T23:02:23.728949"
+}, {
+  "filename" : "TestCode.java",
+  "issues" : [ {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 8,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 20,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 21,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 22,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 23,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 24,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 5,
+    "message" : "Unnamed numeric constant found: 10",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 7,
+    "message" : "Unnamed numeric constant found: 10",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 14,
+    "message" : "Unnamed numeric constant found: 10",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 15,
+    "message" : "Unnamed numeric constant found: 20",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 16,
+    "message" : "Unnamed numeric constant found: 30",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 17,
+    "message" : "Unnamed numeric constant found: 40",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 18,
+    "message" : "Unnamed numeric constant found: 50",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  } ],
+  "aiReview" : "### 1. Executive Summary & Code Quality Score (0 - 10)\n- Code is clean and readable.\n- Uses basic control structures and is well-written.\n- No obvious concurrency issues or resource leaks.\n- Magic numbers are used sparingly.\n\n### 2. Critical Security & Logic Vulnerabilities\nNone found based on the static analysis findings.\n\n### 3. Performance, Memory & Resource Safety\n- The code does not contain any concurrency issues.\n- No resource leaks identified.\n- Magic numbers are used sparingly.\n- The loop in the `main` method is optimized for performance.\n\n### 4. Production-Ready Refactored Code Fix (complete replacement block)\n\nHere is the refactored version of the `main` method to ensure it is more efficient and secure:\n\n```java\npublic class TestCode {\n\n    public static void main(String[] args) {\n\n        for (int i = 0; i < 10; i++) {\n            System.out.println(i);\n        }\n    }\n\n    public void longMethod() {\n\n        int a = 10;\n        int b = 20;\n        int c = 30;\n        int d = 40;\n        int e = 50;\n\n        System.out.println(a);\n        System.out.println(b);\n        System.out.println(c);\n        System.out.println(d);\n        System.out.println(e);\n    }\n}\n```\n\n### Explanation of the Refactoring:\n1. **Optimization**: The loop in the `main` method is already optimized for performance. It iterates from 0 to 9, which is the minimum number of iterations required to print 10 lines.\n\n2. **Magic Number Usage**: The magic numbers in the `longMethod` are already unused variables and can be removed without changing the functionality.\n\n3. **Security**: The code does not contain any known security vulnerabilities based on the static analysis findings.\n\n4. **Resource Safety**: No resource leaks are present as no external resources are opened or closed.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T10:40:44.650541"
+}, {
+  "filename" : "MathHelper.java",
+  "issues" : [ ],
+  "aiReview" : "### Executive Summary & Code Quality Score (0 - 10)\n\n#### 1. Critical Security & Logic Vulnerabilities\n\n**Score: 7/10**\n\n#### 2. Performance, Memory & Resource Safety\n\n**Score: 8/10**\n\n#### 3. Production-Ready Refactored Code Fix (complete replacement block)\n\n**Fix:**\n\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        return a + b;\n    }\n}\n```\n\n### Detailed Analysis\n\n#### 1. Critical Security & Logic Vulnerabilities\n\n**OWASP Top 10:**\n\n- **Injection**: No issues identified in the provided code snippet.\n\n**Cross-checking Static Analysis Findings:**\n\n- There are no reported security vulnerabilities in the provided code using static analysis tools.\n\n#### 2. Performance, Memory & Resource Safety\n\n**Performance:** The provided code is very basic and straightforward, hence it does not introduce any significant performance issues.\n\n**Memory:** The provided code is using basic arithmetic operations, hence it does not introduce any memory leaks or resource management issues.\n\n**Resource Safety:** The provided code uses basic arithmetic operations, hence it does not introduce any concurrency race conditions or resource leaks.\n\n#### 3. Production-Ready Refactored Code Fix (complete replacement block)\n\n**Fix:**\n\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        return a + b;\n    }\n}\n```\n\n### Final Code\n\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        return a + b;\n    }\n}\n```\n\n### Summary\n\n- **Critical Security & Logic Vulnerabilities:** No issues identified.\n- **Performance, Memory & Resource Safety:** The provided code is very basic and straightforward, hence it does not introduce any significant performance issues or resource management issues.\n- **Production-Ready Refactored Code Fix:** No changes are needed.\n\nThe provided code snippet is already in a good state and does not contain any critical security vulnerabilities or concurrency race conditions. The code is efficient in terms of performance and memory usage.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T10:41:31.649214"
+}, {
+  "filename" : "MathHelper.java",
+  "issues" : [ ],
+  "aiReview" : "### 1. Executive Summary & Code Quality Score (0 - 10)\n\n**Code Quality Score:** 10\n\n**Executive Summary:** The provided Java source code for `MathHelper` class is considered secure and meets basic coding standards. However, it contains a potential issue that could lead to a concurrency race condition. The `add` method does not synchronize the access to the `a` and `b` parameters, which could lead to data inconsistency if multiple threads access this method simultaneously.\n\n### 2. Critical Security & Logic Vulnerabilities\n\n**Issue:** Concurrency Race Condition\n\n**Line:** 10 (in the `add` method)\n\n**Impact:** The `add` method does not ensure that `a` and `b` are updated atomically, leading to data inconsistencies if multiple threads access this method simultaneously.\n\n**Fix:**\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        synchronized (this) {\n            return a + b;\n        }\n    }\n}\n```\n\n### 3. Performance, Memory & Resource Safety\n\n**Issue:** Algorithmic Efficiency\n\n**Line:** 10 (in the `add` method)\n\n**Impact:** The `add` method simply returns the sum of `a` and `b`, which has a time complexity of O(1).\n\n**Fix:**\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        return a + b;\n    }\n}\n```\n\n### 4. Production-Ready Refactored Code Fix (complete replacement block)\n\n**Original Code:**\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        return a + b;\n    }\n}\n```\n\n**Refactored Code:**\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        synchronized (this) {\n            return a + b;\n        }\n    }\n}\n```\n\n### Final Code:\n\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        synchronized (this) {\n            return a + b;\n        }\n    }\n}\n```\n\nThis refactored code includes the necessary synchronization to ensure thread safety, which addresses the concurrency race condition vulnerability.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T10:42:04.945741"
+}, {
+  "filename" : "MathHelper.java",
+  "issues" : [ ],
+  "aiReview" : "### 1. Executive Summary & Code Quality Score (0 - 10)\n\n#### Code Quality Score: 5/10\n\n#### 2. Critical Security & Logic Vulnerabilities\n\n- **Race Condition**: There is no race condition in the provided `add` method because it is a simple addition operation that does not access shared resources or variables that can be modified concurrently by multiple threads.\n\n#### 3. Performance, Memory & Resource Safety\n\n- **Resource Management**: The method `add` simply returns the sum of two integers without any unnecessary resource management. It adheres to best practices for handling integers.\n\n#### 4. Production-Ready Refactored Code Fix (complete replacement block)\n\nThe provided `add` method does not require any refactoring since it is already correct. However, for completeness, here is a hypothetical example of how you might refactor this method to include error handling for invalid inputs:\n\n```java\npublic class MathHelper {\n    public int add(int a, int b) {\n        // Check for valid inputs\n        if (a == Integer.MIN_VALUE || a == Integer.MAX_VALUE || b == Integer.MIN_VALUE || b == Integer.MAX_VALUE) {\n            throw new IllegalArgumentException(\"Input values must be within the range of an int.\");\n        }\n        return a + b;\n    }\n}\n```\n\nThis refactored method includes a simple check to ensure that the input values are within the valid range for an integer before performing the addition.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T10:42:38.710999"
+}, {
+  "filename" : "SafeService.java",
+  "issues" : [ ],
+  "aiReview" : "### 1. Executive Summary & Code Quality Score (0 - 10)\n\n**Code Quality Score**: 8/10\n\n### 2. Critical Security & Logic Vulnerabilities\n\n**OWASP Top 10 Vulnerabilities**:\n\n- **A-1: Injection** (3 points): The `greet` method does not properly sanitize user input before concatenation. This can lead to SQL injection or cross-site scripting (XSS) attacks if user input is not properly validated and sanitized.\n  - **Impact**: Potential security breaches\n  - **Fix**: Add input validation and sanitization before concatenation. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            if (name == null || name.isEmpty()) {\n                return \"Hello Guest\";\n            }\n            return \"Hello \" + name;\n        }\n    }\n    ```\n\n- **A-2: Misconfiguration** (1 point): The `greet` method does not enforce any security policies. This can lead to unauthorized access or potential misconfigurations if the method is not properly secured.\n  - **Impact**: Potential security breaches\n  - **Fix**: Implement proper security policies and access controls. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            if (name == null || name.isEmpty()) {\n                return \"Hello Guest\";\n            }\n            return \"Hello \" + name;\n        }\n    }\n    ```\n\n- **C-1: Cross-Site Scripting (XSS)** (1 point): The `greet` method does not sanitize user input before concatenation. This can lead to XSS attacks if user input is not properly validated and sanitized.\n  - **Impact**: Potential security breaches\n  - **Fix**: Add input validation and sanitization before concatenation. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            if (name == null || name.isEmpty()) {\n                return \"Hello Guest\";\n            }\n            return \"Hello \" + name;\n        }\n    }\n    ```\n\n- **C-2: Command Injection** (1 point): The `greet` method does not properly sanitize user input before concatenation. This can lead to command injection attacks if user input is not properly validated and sanitized.\n  - **Impact**: Potential security breaches\n  - **Fix**: Add input validation and sanitization before concatenation. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            if (name == null || name.isEmpty()) {\n                return \"Hello Guest\";\n            }\n            return \"Hello \" + name;\n        }\n    }\n    ```\n\n- **C-3: Insecure Deserialization** (1 point): The `greet` method does not properly validate or sanitize input before deserialization. This can lead to deserialization attacks if the input is not properly validated and sanitized.\n  - **Impact**: Potential security breaches\n  - **Fix**: Add input validation and sanitization before deserialization. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            if (name == null || name.isEmpty()) {\n                return \"Hello Guest\";\n            }\n            return \"Hello \" + name;\n        }\n    }\n    ```\n\n- **D-1: Information Disclosure** (1 point): The `greet` method does not properly handle exceptions that may occur during execution. This can lead to information leakage if the exception is not properly handled.\n  - **Impact**: Potential information leakage\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-2: Denial of Service (DoS)** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to denial of service if the exception is not properly handled.\n  - **Impact**: Potential denial of service\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-3: Out-of-Bounds Access** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to out-of-bounds access if the input is not properly validated and sanitized.\n  - **Impact**: Potential out-of-bounds access\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-4: Improper Access Control** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to improper access control if the input is not properly validated and sanitized.\n  - **Impact**: Potential improper access control\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-5: Cross-Site Request Forgery (CSRF)** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to CSRF if the input is not properly validated and sanitized.\n  - **Impact**: Potential CSRF\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-6: Insecure Cryptography** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to insecure cryptography if the input is not properly validated and sanitized.\n  - **Impact**: Potential insecure cryptography\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-7: Insecure Transport Layer Security (TLS)** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to insecure TLS if the input is not properly validated and sanitized.\n  - **Impact**: Potential insecure TLS\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-8: Insecure Password Storage** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to insecure password storage if the input is not properly validated and sanitized.\n  - **Impact**: Potential insecure password storage\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-9: Insecure Cookie Handling** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to insecure cookie handling if the input is not properly validated and sanitized.\n  - **Impact**: Potential insecure cookie handling\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n- **D-10: Insufficient Logging** (1 point): The `greet` method does not handle exceptions that may occur during execution. This can lead to insufficient logging if the input is not properly validated and sanitized.\n  - **Impact**: Potential insufficient logging\n  - **Fix**: Add proper exception handling. For example:\n    ```java\n    public class SafeService {\n        public String greet(String name) {\n            try {\n                if (name == null || name.isEmpty()) {\n                    return \"Hello Guest\";\n                }\n                return \"Hello \" + name;\n            } catch (Exception e) {\n                return \"Error: \" + e.getMessage();\n            }\n        }\n    }\n    ```\n\n### 3. Performance, Memory & Resource Safety\n\n**Performance**: The `greet` method performs well. The time complexity is O(1), which is constant time. The space complexity is O(1), which is constant space.\n\n**Memory**: The `greet` method does not allocate any memory that is not necessary. The method only creates a string object and returns it. Therefore, the memory usage is constant.\n\n**Resource Safety**: The `greet` method does not have any resource leaks. The method only creates a string object and returns it. Therefore, there are no resource leaks.\n\n### 4. Production-Ready Refactored Code Fix (complete replacement block)\n\n```java\npublic class SafeService {\n    public String greet(String name) {\n        if (name == null || name.isEmpty()) {\n            return \"Hello Guest\";\n        }\n        return \"Hello \" + name;\n    }\n}\n```",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T10:42:44.634870"
+}, {
+  "filename" : "TestCode.java",
+  "issues" : [ {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 1,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J.",
+    "category" : "quality"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 1,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  } ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T15:48:53.230045",
+  "secScore" : 6.5,
+  "qualScore" : 9.0,
+  "maintScore" : 10.0,
+  "overallScore" : 8.5,
+  "verdict" : "Production Ready"
+}, {
+  "filename" : "UserService.java",
+  "issues" : [ {
+    "rule" : "EMPTY_CATCH",
+    "severity" : "HIGH",
+    "line" : 6,
+    "message" : "Exception is caught but the catch block is empty.",
+    "suggestion" : "Handle, log, or rethrow the exception instead of silently ignoring it.",
+    "category" : "quality"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 3,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 3,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 3,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 3,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  } ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T15:49:45.975681",
+  "secScore" : 1.0,
+  "qualScore" : 6.5,
+  "maintScore" : 10.0,
+  "overallScore" : 5.8,
+  "verdict" : "Refactoring Recommended"
+}, {
+  "filename" : "TestCode.java",
+  "issues" : [ ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T15:51:13.901657",
+  "secScore" : 10.0,
+  "qualScore" : 10.0,
+  "maintScore" : 10.0,
+  "overallScore" : 10.0,
+  "verdict" : "Production Ready"
+}, {
+  "filename" : "VulnerableService.java",
+  "issues" : [ {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 1,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J.",
+    "category" : "quality"
+  }, {
+    "rule" : "EMPTY_CATCH",
+    "severity" : "HIGH",
+    "line" : 1,
+    "message" : "Exception is caught but the catch block is empty.",
+    "suggestion" : "Handle, log, or rethrow the exception instead of silently ignoring it.",
+    "category" : "quality"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 1,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  } ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T15:51:38.282712",
+  "secScore" : 6.5,
+  "qualScore" : 5.5,
+  "maintScore" : 10.0,
+  "overallScore" : 7.3,
+  "verdict" : "Refactoring Recommended"
+}, {
+  "filename" : "UserService.java",
+  "issues" : [ {
+    "rule" : "EMPTY_CATCH",
+    "severity" : "HIGH",
+    "line" : 13,
+    "message" : "Exception is caught but the catch block is empty.",
+    "suggestion" : "Handle, log, or rethrow the exception instead of silently ignoring it.",
+    "category" : "quality"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 5,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 5,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 5,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 5,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  } ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T15:54:51.512864",
+  "secScore" : 1.0,
+  "qualScore" : 6.5,
+  "maintScore" : 10.0,
+  "overallScore" : 5.8,
+  "verdict" : "Refactoring Recommended"
 } ]

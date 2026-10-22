@@ -1440,7 +1440,70 @@
       }, 2500);
     }
 
-    function runAnalysis() {
+
+    // Dynamic API Base:
+    // - If window.BACKEND_API_URL is configured, use it
+    // - On localhost, connect directly to Spring Boot at http://localhost:8080
+    // - On Netlify/production, use relative path '' to route via Netlify proxy redirect
+    const API_BASE = window.BACKEND_API_URL
+      ? window.BACKEND_API_URL
+      : (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:8080'
+          : '');
+
+    // ── Issue → badge class mapping ─────────────────────────
+    function badgeClass(severity) {
+      switch ((severity || '').toUpperCase()) {
+        case 'CRITICAL': return 'badge-critical';
+        case 'HIGH':     return 'badge-high';
+        case 'MEDIUM':   return 'badge-medium';
+        case 'LOW':      return 'badge-low';
+        default:         return 'badge-low';
+      }
+    }
+
+    // ── Map backend codeIssue → frontend mistake shape ──────
+    function issueToMistake(issue) {
+      const sev = (issue.severity || 'LOW').toUpperCase();
+
+      const titleMap = {
+        'JAVA012':     '🔑 Hardcoded Credentials / Secrets (OWASP A07)',
+        'JAVA013':     '🚨 SQL Injection Vulnerability (OWASP A03)',
+        'EMPTY_CATCH': '🔇 Empty Catch Block (Swallowed Exception)',
+        'GENERIC_CATCH': '⚠️ Catching Generic Exception',
+        'SYSTEM OUT':  'ℹ️ Code Smell: Direct System.out Console Output',
+        'JAVA007':     '🔄 Excessive Deep Nesting (> 3 levels)',
+        'MAGIC_NUMBER':'🔢 Anti-Pattern: Unnamed Magic Number',
+        'LONG_METHOD': '📏 Long Method Detected',
+        'LONG_CLASS':  '📦 Long Class Detected',
+        'TOO_MANY_ARGS':'🔢 Too Many Method Arguments',
+        'EMPTY_METHOD':'🕳️ Empty Method Body',
+        'TODO':        '📝 TODO Comment Found',
+        'FIXME':       '🔧 FIXME Comment Found',
+        'COMPLEXITY':  '🔄 High Cyclomatic Complexity'
+      };
+
+      const deductionMap = {
+        'CRITICAL': '-5.8 pts on Security Score',
+        'HIGH':     '-3.5 pts',
+        'MEDIUM':   '-2.0 pts',
+        'LOW':      '-1.0 pts'
+      };
+
+      return {
+        category:      issue.category || 'quality',
+        line:          issue.line || 1,
+        snippet:       null,
+        severity:      issue.severity || 'LOW',
+        badgeClass:    badgeClass(issue.severity),
+        title:         titleMap[issue.rule] || ('⚠️ ' + (issue.rule || 'Issue')),
+        mistake:       issue.message || '',
+        deductionText: deductionMap[sev] || '-1.0 pts',
+        fix:           issue.suggestion || ''
+      };
+    }
+
+    async function runAnalysis() {
       const code = editor.value.trim();
       if (!code) {
         showToast('⚠️ Please paste or type some Java code first!');
@@ -1449,7 +1512,7 @@
 
       const analyzeBtn = document.getElementById('analyzeBtn');
       analyzeBtn.disabled = true;
-      analyzeBtn.innerHTML = '⏳ Analyzing Java AST...';
+      analyzeBtn.innerHTML = '⏳ Analyzing...';
 
       document.getElementById('placeholderView').style.display = 'none';
       const reportView = document.getElementById('reportView');
@@ -1457,20 +1520,85 @@
       reportView.innerHTML = `
         <div style="text-align: center; padding: 3.5rem 1rem;">
           <div style="font-size: 2.2rem; margin-bottom: 1rem; animation: pulse 1s infinite;">🔍</div>
-          <p style="font-weight: 700; font-size: 1.05rem;">Evaluating Java Security, Quality & Maintainability...</p>
-          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Scanning AST tree and identifying exact mistake lines</p>
+          <p style="font-weight: 700; font-size: 1.05rem;">Calling backend AST analyzer &amp; AI reviewer...</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Running static analysis + Ollama LLM review</p>
         </div>
       `;
 
-      setTimeout(() => {
+      const filename = activeFilename.textContent || 'Unknown.java';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/reviews`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename, sourceCode: code })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Backend error ${response.status}: ${errText}`);
+        }
+
+        const result = await response.json();
+        generateJavaReport(code, result);
+
+      } catch (err) {
+        console.warn('Backend request failed — running local fallback:', err);
+        showToast('⚠️ Backend unreachable — running local analysis');
+        generateJavaReport(code, null);
+      } finally {
         analyzeBtn.disabled = false;
         analyzeBtn.innerHTML = '⚡ Run Code Review';
-        generateJavaReport(code);
-      }, 400);
+      }
     }
 
-    // Accurate Java Analyzer & Mistake Detector
-    function generateJavaReport(code) {
+    // Java Analyzer — uses backend result when available, falls back to local JS
+    function generateJavaReport(code, backendResult) {
+
+      // ── Branch A: backend result available ───────────────
+      if (backendResult) {
+        const issues = backendResult.issues || [];
+        const mistakes = issues.length > 0
+          ? issues.map(issueToMistake)
+          : [{
+              category: 'clean', line: 1, snippet: null,
+              severity: 'CLEAN', badgeClass: 'badge-clean',
+              title: '✅ Zero Mistakes Detected!',
+              mistake: 'No security vulnerabilities, resource leaks, or code anti-patterns were found.',
+              deductionText: '0 deductions', fix: 'Code is production-ready.'
+            }];
+
+        const secStr   = (backendResult.secScore   || 10).toFixed(1);
+        const qualStr  = (backendResult.qualScore  || 10).toFixed(1);
+        const maintStr = (backendResult.maintScore || 10).toFixed(1);
+        const overallStr = (backendResult.overallScore || 10).toFixed(1);
+        const verdictText = backendResult.verdict || 'Production Ready';
+
+        let overallRingColor = 'var(--accent2)';
+        const overall = parseFloat(overallStr);
+        if (overall < 5.0)  overallRingColor = 'var(--accent3)';
+        else if (overall < 7.5) overallRingColor = 'var(--accent-warn)';
+
+        lastReportData = {
+          lang: 'java',
+          filename: backendResult.filename || activeFilename.textContent,
+          secScore: secStr,
+          qualScore: qualStr,
+          maintScore: maintStr,
+          overallScore: overallStr,
+          verdict: verdictText,
+          mistakes,
+          refactorCode: null,
+          aiReview: backendResult.aiReview || null,
+          timestamp: backendResult.reviewDate || new Date().toISOString()
+        };
+
+        renderJavaReportUI(lastReportData, overallRingColor);
+        return;
+      }
+
+      // ── Branch B: local fallback (backend unreachable) ────
+      function generateJavaReport_local(code) {
       const lines = code.split('\n');
       const mistakes = [];
       let refactorCode = '';
@@ -1763,6 +1891,8 @@
       };
 
       renderJavaReportUI(lastReportData, overallRingColor);
+      } // end generateJavaReport_local
+      generateJavaReport_local(code);
     }
 
     // Render 4-Score Visual Output
@@ -1888,6 +2018,18 @@
           </div>
         ` : ''}
 
+
+        <!-- AI Review Panel (shown when backend AI review is available) -->
+        ${data.aiReview ? `
+          <div class="refactor-box" style="border-color: rgba(192, 132, 252, 0.25); background: rgba(192, 132, 252, 0.04);">
+            <div class="refactor-header" style="border-color: rgba(192, 132, 252, 0.2);">
+              <span style="color: #c084fc;">🤖 AI Code Review (Ollama)</span>
+              <button class="btn btn-ghost" onclick="copyAiReview()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">Copy</button>
+            </div>
+            <pre class="refactor-content" style="white-space: pre-wrap; color: var(--text-muted); font-family: 'Inter', sans-serif; font-size: 0.83rem; line-height: 1.65;">${data.aiReview.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+          </div>
+        ` : ''}
+
         <!-- Export Buttons -->
         <div class="export-actions-row">
           <button class="btn btn-ghost" onclick="exportJavaReport('markdown')" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
@@ -1921,6 +2063,14 @@
       if (lastReportData && lastReportData.refactorCode) {
         navigator.clipboard.writeText(lastReportData.refactorCode).then(() => {
           showToast('Refactored code copied to clipboard! 📋');
+        });
+      }
+    }
+
+    function copyAiReview() {
+      if (lastReportData && lastReportData.aiReview) {
+        navigator.clipboard.writeText(lastReportData.aiReview).then(() => {
+          showToast('AI review copied to clipboard! 🤖');
         });
       }
     }
