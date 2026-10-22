@@ -650,4 +650,29 @@
   "maintScore" : 10.0,
   "overallScore" : 5.8,
   "verdict" : "Refactoring Recommended"
+}, {
+  "filename" : "UserService.java",
+  "issues" : [ {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 1,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J.",
+    "category" : "quality"
+  }, {
+    "rule" : "JAVA013",
+    "severity" : "HIGH",
+    "line" : 1,
+    "message" : "Possible SQL Injection.",
+    "suggestion" : "Use Prepared Statement instead of string concatenation.",
+    "category" : "security"
+  } ],
+  "aiReview" : "ℹ️ AI review skipped: Ollama server is offline or unreachable at http://localhost:11434. Static AST code analysis completed successfully.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-22T16:10:56.769431",
+  "secScore" : 6.5,
+  "qualScore" : 9.0,
+  "maintScore" : 10.0,
+  "overallScore" : 8.5,
+  "verdict" : "Production Ready"
 } ]
