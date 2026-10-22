@@ -1137,10 +1137,10 @@
       <!-- Studio Header -->
       <div class="studio-header">
         <div class="lang-tabs">
-          <button class="lang-tab active" onclick="switchLanguage('java')">☕ Java</button>
-          <button class="lang-tab" onclick="switchLanguage('python')">🐍 Python</button>
-          <button class="lang-tab" onclick="switchLanguage('javascript')">🟨 JavaScript/TS</button>
-          <button class="lang-tab" onclick="switchLanguage('go')">🐹 Go</button>
+          <button class="lang-tab active" onclick="switchLanguage('java', this)">☕ Java</button>
+          <button class="lang-tab" onclick="switchLanguage('python', this)">🐍 Python</button>
+          <button class="lang-tab" onclick="switchLanguage('javascript', this)">🟨 JavaScript/TS</button>
+          <button class="lang-tab" onclick="switchLanguage('go', this)">🐹 Go</button>
         </div>
 
         <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -1465,10 +1465,14 @@
     });
 
     // Language switcher
-    function switchLanguage(lang) {
+    function switchLanguage(lang, btn) {
       currentLanguage = lang;
       document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
+      if (btn) {
+        btn.classList.add('active');
+      } else if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+      }
 
       const ext = samples[lang].ext;
       activeFilename.textContent = `Snippet.${ext}`;
@@ -1836,10 +1840,10 @@
         <div class="findings-header">
           <span style="font-weight: 700; font-size: 0.95rem;">Audit Findings</span>
           <div class="filter-btn-group">
-            <button class="filter-btn active" onclick="filterFindings('all')">All (${data.issues.length})</button>
-            <button class="filter-btn" onclick="filterFindings('sec')">Security</button>
-            <button class="filter-btn" onclick="filterFindings('bugs')">Bugs</button>
-            <button class="filter-btn" onclick="filterFindings('perf')">Perf</button>
+            <button class="filter-btn active" onclick="filterFindings('all', this)">All (${data.issues.length})</button>
+            <button class="filter-btn" onclick="filterFindings('sec', this)">Security</button>
+            <button class="filter-btn" onclick="filterFindings('bugs', this)">Bugs</button>
+            <button class="filter-btn" onclick="filterFindings('perf', this)">Perf</button>
           </div>
         </div>
 
@@ -1885,9 +1889,13 @@
       `;
     }
 
-    function filterFindings(cat) {
+    function filterFindings(cat, btn) {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (btn) {
+        btn.classList.add('active');
+      } else if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+      }
 
       const items = document.querySelectorAll('.finding-item');
       items.forEach(el => {
