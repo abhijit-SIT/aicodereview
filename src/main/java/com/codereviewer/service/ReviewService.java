@@ -52,12 +52,24 @@ public class ReviewService {
                 );
 
 
-        // 2. AI review
-        String aiReview =
-                aiReviewer.review(
+        // 2. AI review (with graceful fallback if Ollama is unavailable)
+        String aiReview;
+        try {
+            if (aiReviewer.isConfigured()) {
+                aiReview = aiReviewer.review(
                         sourceCode,
                         result.getIssues()
                 );
+            } else {
+                aiReview = "ℹ️ AI review skipped: Ollama server is offline or unreachable at "
+                        + aiReviewer.getBaseUrl()
+                        + ". Static AST code analysis completed successfully.";
+            }
+        } catch (Exception e) {
+            aiReview = "⚠️ AI review could not be completed: "
+                    + e.getMessage()
+                    + ". Static AST code analysis completed successfully.";
+        }
 
 
         // 3. Add AI review
