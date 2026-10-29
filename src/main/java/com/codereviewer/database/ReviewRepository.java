@@ -23,93 +23,81 @@ public class ReviewRepository {
     // SAVE REVIEW
     // =====================================================
 
-    public long saveReview(
-            ReviewResult result,
-            String filePath,
-            String aiReview) {
+    
+public long saveReview(
+        ReviewResult result,
+        String filePath,
+        String aiReview) {
 
-        String sql = """
-                INSERT INTO reviews
-                (
-                    file_name,
-                    file_path,
-                    review_date,
-                    total_issues,
-                    ai_review
-                )
-                VALUES (?, ?, ?, ?, ?)
-                """;
+    String sql = """
+            INSERT INTO reviews
+                (file_name, file_path, review_date,
+                 total_issues, ai_review)
+            VALUES (?, ?, ?, ?, ?)
+            """;
 
-        try (Connection connection =
-                     DatabaseManager.getConnection();
+    try (Connection connection = DatabaseManager.getConnection()) {
 
-             PreparedStatement statement =
-                     connection.prepareStatement(
-                             sql,
-                             Statement.RETURN_GENERATED_KEYS
-                     )) {
+        connection.setAutoCommit(false);
 
-            statement.setString(
-                    1,
-                    result.getFilename()
-            );
+        try {
+            long reviewId;
 
-            statement.setString(
-                    2,
-                    filePath
-            );
+            try (PreparedStatement statement =
+                         connection.prepareStatement(
+                                 sql,
+                                 Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setString(
-                    3,
-                    result.getReviewDate()
-            );
+                statement.setString(1, result.getFilename());
+                statement.setString(2, filePath);
+                statement.setString(3, result.getReviewDate());
+                statement.setInt(4, result.getIssues().size());
+                statement.setString(5, aiReview);
 
-            statement.setInt(
-                    4,
-                    result.getIssues().size()
-            );
+                statement.executeUpdate();
 
-            statement.setString(
-                    5,
-                    aiReview
-            );
+                try (ResultSet keys = statement.getGeneratedKeys()) {
 
-            statement.executeUpdate();
+                    if (!keys.next()) {
+                        throw new SQLException(
+                                "PostgreSQL did not return the new review ID."
+                        );
+                    }
 
-            try (ResultSet generatedKeys =
-                         statement.getGeneratedKeys()) {
-
-                if (generatedKeys.next()) {
-
-                    long reviewId =
-                            generatedKeys.getLong(1);
-
-                    saveIssues(
-                            connection,
-                            reviewId,
-                            result.getIssues()
-                    );
-
-                    System.out.println(
-                            "Review saved to database. ID: "
-                                    + reviewId
-                    );
-
-                    return reviewId;
+                    reviewId = keys.getLong(1);
                 }
             }
 
-        } catch (SQLException e) {
+            saveIssues(connection, reviewId, result.getIssues());
+
+            connection.commit();
 
             System.out.println(
-                    "Failed to save review."
+                    "Review saved to PostgreSQL. ID: " + reviewId
             );
 
-            e.printStackTrace();
+            return reviewId;
+
+        } catch (Exception e) {
+
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackError) {
+                e.addSuppressed(rollbackError);
+            }
+
+            throw e;
         }
+
+    } catch (Exception e) {
+
+        System.err.println("Failed to save review to PostgreSQL.");
+        e.printStackTrace();
 
         return -1;
     }
+}
+
 
 
     // =====================================================

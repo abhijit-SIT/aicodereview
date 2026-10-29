@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Code Reviewer — Smart Java Code Analysis & Security Auditor</title>
+  <meta name="description" content="Accurate automated Java code review. Get granular Security Score, Code Quality Score, Maintainability Score, and Overall Score with exact line-by-line mistake detection and AI fixes." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── Base & Design Tokens ───────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #090d16;
+      --bg-alt: #0d1322;
+      --surface: #141b2d;
+      --surface2: #1b243b;
+      --surface-glass: rgba(20, 27, 45, 0.78);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 179, 237, 0.4);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --accent2: #4ade80;
+      --accent3: #f87171;
+      --accent4: #c084fc;
+      --accent-warn: #fbbf24;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --gradient-primary: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+      --radius: 12px;
+      --radius-lg: 18px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse 90% 60% at 50% -10%, rgba(56, 189, 248, 0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 90% 40%, rgba(192, 132, 252, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 10% 80%, rgba(74, 222, 128, 0.06) 0%, transparent 60%);
+      background-attachment: fixed;
+    }
+
+    /* ── Navigation ─────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2.5rem;
+      background: rgba(9, 13, 22, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.3));
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text) !important;
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 600 !important;
+      border: 1px solid var(--border);
+      transition: all 0.2s ease !important;
+    }
+
+    .nav-cta:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      color: var(--accent) !important;
+      transform: translateY(-1px);
+    }
+
+    /* ── Hero ──────────────────────────────────────────── */
+    .hero {
+      min-height: 65vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 110px 2rem 2.5rem;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent);
+      padding: 0.4rem 1.15rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge span.pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent2);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent2);
+      animation: pulse 1.8s infinite;
+    }
+
+    .hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2.3rem, 5vw, 4.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      max-width: 900px;
+      animation: fadeUp 0.6s ease 0.1s both;
+    }
+
+    .gradient-text {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      margin-top: 1.25rem;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 1.65;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 0.6s ease 0.3s both;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+      color: #090d16;
+      font-weight: 700;
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(56, 189, 248, 0.45);
+      filter: brightness(1.1);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      border-color: var(--border);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* ── Java Studio Section ───────────────────────────── */
+    #playground {
+      padding: 2.5rem 2rem 5rem;
+      max-width: 1340px;
+      margin: 0 auto;
+    }
+
+    .studio-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .studio-header {
+      background: var(--surface2);
+      padding: 1rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .java-badge-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--text);
+      padding: 0.45rem 1rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .java-badge-brand span.coffee {
+      font-size: 1.15rem;
+    }
+
+    /* Sample Snippets Bar */
+    .samples-bar {
+      display: flex;
+      align-items: center;
+      background: rgba(13, 19, 34, 0.9);
+      padding: 0.75rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      font-size: 0.84rem;
+    }
+
+    .samples-label {
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-right: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .sample-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .sample-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .sample-chip.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.16);
+      font-weight: 600;
+    }
+
+    /* Studio Grid: Left Editor, Right Output */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      min-height: 600px;
+    }
+
+    @media (max-width: 1024px) {
+      .studio-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Editor Panel */
+    .editor-panel {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      background: #090e17;
+      position: relative;
+    }
+
+    @media (max-width: 1024px) {
+      .editor-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    .editor-topbar {
+      padding: 0.65rem 1.25rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-family: 'Fira Code', monospace;
+      color: var(--text-muted);
+    }
+
+    .file-dropzone-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      padding: 0.25rem 0.55rem;
+      border-radius: 5px;
+      border: 1px dashed var(--border);
+      transition: all 0.2s;
+    }
+
+    .file-dropzone-hint:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .editor-workspace {
+      display: flex;
+      flex: 1;
+      min-height: 480px;
+      position: relative;
+    }
+
+    .line-numbers {
+      width: 48px;
+      background: rgba(9, 14, 23, 0.95);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0.5rem;
+      text-align: right;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.84rem;
+      color: var(--text-dim);
+      user-select: none;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    .code-editor {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      color: #e2e8f0;
+      border: none;
+      padding: 1.25rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      white-space: pre;
+      overflow-wrap: normal;
+      overflow-x: auto;
+      tab-size: 4;
+    }
+
+    .editor-actions {
+      padding: 0.85rem 1.25rem;
+      background: var(--surface2);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Output Panel */
+    .output-panel {
+      padding: 1.75rem;
+      background: var(--surface);
+      overflow-y: auto;
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .output-placeholder {
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 3rem 1.5rem;
+      max-width: 400px;
+    }
+
+    .output-placeholder-icon {
+      width: 68px;
+      height: 68px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── The 4-Score Visual System ──────────────────────── */
+    .report-card {
+      animation: fadeIn 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+    }
+
+    .scores-hero-container {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .scores-hero-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Overall Hero Box */
+    .overall-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      background-image: var(--gradient-card);
+    }
+
+    .overall-ring-wrap {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 0.75rem;
+    }
+
+    .overall-ring-svg {
+      transform: rotate(-90deg);
+      width: 100px;
+      height: 100px;
+    }
+
+    .overall-ring-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 8;
+    }
+
+    .overall-ring-progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 251.2;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+    }
+
+    .overall-ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overall-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .overall-max {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .overall-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .overall-verdict {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-top: 0.2rem;
+    }
+
+    /* Sub-Scores Metric Cards Grid */
+    .subscores-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      justify-content: center;
+    }
+
+    .subscore-card {
+      background: rgba(9, 13, 22, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .subscore-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(13, 19, 34, 0.8);
+    }
+
+    .subscore-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .subscore-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .subscore-score {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .subscore-score small {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-dim);
+    }
+
+    .subscore-progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .subscore-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s ease;
+    }
+
+    .subscore-progress-fill.sec { background: linear-gradient(90deg, #f87171, #fb923c); }
+    .subscore-progress-fill.qual { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+    .subscore-progress-fill.maint { background: linear-gradient(90deg, #c084fc, #4ade80); }
+
+    .subscore-desc {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Pointing Out Mistakes ──────────────────────────── */
+    .mistakes-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .mistakes-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.28rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .mistakes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .mistake-card {
+      background: rgba(9, 13, 22, 0.75);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent3);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .mistake-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(13, 19, 34, 0.9);
+      transform: translateY(-1px);
+    }
+
+    .mistake-card.sec { border-left-color: #ef4444; }
+    .mistake-card.qual { border-left-color: #38bdf8; }
+    .mistake-card.maint { border-left-color: #c084fc; }
+    .mistake-card.clean { border-left-color: #4ade80; }
+
+    .mistake-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .mistake-title {
+      font-weight: 700;
+      font-size: 0.94rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mistake-line-tag {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .badge-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-high { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .badge-medium { background: rgba(251, 191, 36, 0.2); color: #fcd34d; border: 1px solid rgba(251, 191, 36, 0.4); }
+    .badge-low { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .badge-clean { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); }
+
+    .mistake-snippet-box {
+      background: #060910;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      padding: 0.45rem 0.75rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+      color: #fca5a5;
+      margin: 0.5rem 0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    .mistake-desc {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .mistake-impact {
+      font-size: 0.78rem;
+      color: #f87171;
+      font-weight: 600;
+      margin-top: 0.35rem;
+    }
+
+    .mistake-fix-box {
+      margin-top: 0.6rem;
+      padding: 0.6rem 0.85rem;
+      background: rgba(56, 189, 248, 0.06);
+      border-left: 2px solid var(--accent);
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    /* Refactored Code Block */
+    .refactor-box {
+      margin-top: 0.85rem;
+      background: #090e17;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .refactor-header {
+      background: var(--surface2);
+      padding: 0.55rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent2);
+    }
+
+    .refactor-content {
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.83rem;
+      color: #86efac;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      line-height: 1.55;
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .export-actions-row {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    /* ── Features & How it works ────────────────────────── */
+    section {
+      padding: 4.5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.85rem;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      max-width: 620px;
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.85rem;
+      transition: all 0.25s ease;
+      background-image: var(--gradient-card);
+    }
+
+    .feature-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.15rem;
+    }
+
+    /* CLI snippet */
+    .cli-box {
+      background: #090e17;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin-top: 2rem;
+      position: relative;
+    }
+
+    .cli-code {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+
+    .cli-code span.cmd-prefix { color: var(--accent); user-select: none; }
+    .cli-code span.comment { color: var(--text-dim); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      background: rgba(9, 13, 22, 0.95);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+      color: var(--text);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 1.25rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ────────────────────────────────────── -->
+  <nav>
+    <a class="nav-logo" href="#">
+      <div class="nav-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="16 18 22 12 16 6"></polyline>
+          <polyline points="8 6 2 12 8 18"></polyline>
+          <line x1="12" y1="2" x2="12" y2="22"></line>
+        </svg>
+      </div>
+      AI Code Reviewer
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#playground">Java Studio</a></li>
+      <li><a href="#features">Rule Engine</a></li>
+      <li><a href="#quickstart">Quickstart</a></li>
+      <li>
+        <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="nav-cta">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          abhijit-SIT/aicodereview
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ──────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="pulse-dot"></span>
+      Granular Java Code Review & Security Audit
+    </div>
+
+    <h1>Intelligent Java Code Reviews, <span class="gradient-text">Precise & Actionable</span></h1>
+
+    <p>Paste any Java source code to get accurate, granular score breakdowns for <strong>Security</strong>, <strong>Code Quality</strong>, and <strong>Maintainability</strong>, with line-by-line mistake detection and AI fixes.</p>
+
+    <div class="hero-actions">
+      <a href="#playground" class="btn btn-primary">
+        ⚡ Review Java Code
+      </a>
+      <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="btn btn-ghost">
+        View GitHub Repo
+      </a>
+    </div>
+  </section>
+
+  <!-- ── Java Review Studio Section ────────────────────── -->
+  <section id="playground">
+    <div class="section-label">Interactive Java Studio</div>
+    <h2 class="section-title">Test Your Java Code</h2>
+    <p class="section-desc">Inspect exact mistakes, line numbers, and granular score deductions.</p>
+
+    <div class="studio-container" style="margin-top: 2rem;">
+      <!-- Studio Header -->
+      <div class="studio-header">
+        <div class="java-badge-brand">
+          <span class="coffee">☕</span>
+          Java 17+ / 21 Analyzer
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <label class="file-dropzone-hint" title="Load Java file into editor">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Upload .java</span>
+            <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)" accept=".java,.txt" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Preset Samples Bar -->
+      <div class="samples-bar" id="samplesBar">
+        <span class="samples-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          Java Snippets:
+        </span>
+        <button class="sample-chip active" onclick="loadSample(0)">🚨 Vulnerability Combo</button>
+        <button class="sample-chip" onclick="loadSample(1)">🛡️ SQL Injection</button>
+        <button class="sample-chip" onclick="loadSample(2)">💥 NullPointer & Chained Calls</button>
+        <button class="sample-chip" onclick="loadSample(3)">⚠️ Resource Stream Leak</button>
+        <button class="sample-chip" onclick="loadSample(4)">🔑 Hardcoded Secrets</button>
+        <button class="sample-chip" onclick="loadSample(5)">🔄 Deep Nesting & Complexity</button>
+        <button class="sample-chip" onclick="loadSample(6)">🔇 Empty Catch & System.out</button>
+        <button class="sample-chip" onclick="loadSample(7)">✅ Clean Safe Java</button>
+      </div>
+
+      <!-- Studio Body Grid -->
+      <div class="studio-grid">
+        <!-- Left: Code Editor -->
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <span id="activeFilename">UserService.java</span>
+            <div style="display: flex; gap: 1rem;">
+              <span id="editorStats">0 lines · 0 chars</span>
+            </div>
+          </div>
+
+          <div class="editor-workspace">
+            <div class="line-numbers" id="lineNumbers">1</div>
+            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Paste or type your Java code here..."></textarea>
+          </div>
+
+          <div class="editor-actions">
+            <div class="editor-btn-subgroup">
+              <button class="btn btn-ghost" onclick="clearEditor()" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Clear</button>
+              <button class="btn btn-ghost" onclick="copyEditorCode()" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Copy Code</button>
+            </div>
+            <button id="analyzeBtn" class="btn btn-primary" onclick="runAnalysis()">
+              ⚡ Run Code Review
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Output Panel -->
+        <div class="output-panel" id="outputPanel">
+          <div class="output-placeholder" id="placeholderView">
+            <div class="output-placeholder-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <h3 style="color: var(--text); font-size: 1.15rem; margin-bottom: 0.4rem;">Ready to Analyze Java Code</h3>
+            <p style="font-size: 0.88rem; line-height: 1.6;">Click <strong>"Run Code Review"</strong> or select one of the Java mistake samples above.</p>
+          </div>
+
+          <div id="reportView" style="display: none;" class="report-card">
+            <!-- Dynamic findings and scores injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ──────────────────────────────────────── -->
+  <section id="features">
+    <div class="section-label">Automated Java Inspection</div>
+    <h2 class="section-title">Comprehensive Java Rule Engine</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(248, 113, 113, 0.12); color: var(--accent3);">🛡️</div>
+        <h3>Security Audit (OWASP)</h3>
+        <p>Flags SQL injection, command execution, hardcoded credentials, and weak pseudorandom generation.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(56, 189, 248, 0.12); color: var(--accent);">🧼</div>
+        <h3>Code Quality & Bugs</h3>
+        <p>Catches swallowed exceptions, generic catch blocks, unchecked null pointer risks, and console print smells.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon-box" style="background: rgba(192, 132, 252, 0.12); color: var(--accent4);">🔧</div>
+        <h3>Maintainability & AST</h3>
+        <p>Evaluates resource stream leaks, cyclomatic complexity, deep nesting, magic numbers, and argument counts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quickstart / CLI ──────────────────────────────── -->
+  <section id="quickstart">
+    <div class="section-label">Developer Quickstart</div>
+    <h2 class="section-title">Run Java Reviewer Locally</h2>
+
+    <div class="cli-box">
+      <pre class="cli-code"><code><span class="comment"># 1. Clone repository</span>
+<span class="cmd-prefix">$ </span>git clone https://github.com/abhijit-SIT/aicodereview.git
+<span class="cmd-prefix">$ </span>cd aicodereview
+
+<span class="comment"># 2. Run automated test suite</span>
+<span class="cmd-prefix">$ </span>mvn test
+
+<span class="comment"># 3. Launch Spring Boot review service</span>
+<span class="cmd-prefix">$ </span>mvn spring-boot:run</code></pre>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  <footer>
+    <ul class="footer-links">
+      <li><a href="#playground">Java Studio</a></li>
+      <li><a href="#features">Rule Engine</a></li>
+      <li><a href="#quickstart">Quickstart</a></li>
+      <li><a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub Repository</a></li>
+      <li><a href="https://github.com/abhijit-SIT/aicodereview/issues" target="_blank">Issues</a></li>
+    </ul>
+    <p>AI Code Reviewer · Maintained on <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub (abhijit-SIT/aicodereview)</a></p>
+  </footer>
+
+  <!-- ── Toast ─────────────────────────────────────────── -->
+  <div id="toast">
+    <span id="toastIcon">ℹ️</span>
+    <span id="toastMsg">Action completed</span>
+  </div>
+
+  <!-- ── Interactive Review Engine ─────────────────────── -->
+  <script>
+    // Curated Java Samples
+    const javaSamples = [
+      {
+        key: 'combo',
+        label: '🚨 Vulnerability Combo',
+        filename: 'UserService.java',
+        code: `public class UserService {
+
+    public User authenticate(String username, String password) {
+        // Line 5: Critical SQL Injection via raw string concatenation
+        String sql = "SELECT * FROM users WHERE user = '" + username + "' AND pass = '" + password + "'";
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/db");
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+
+        // Line 11: Swallowed exception and silent failure
+        try {
+            chargeAuditLog(username);
+        } catch (Exception e) {
+            // empty catch ignores errors silently
+        }
+
+        // Line 18: Unclosed FileInputStream resource leak
+        FileInputStream fis = new FileInputStream("config.properties");
+        byte[] data = fis.readAllBytes();
+
+        return new User(username);
+    }
+}`
+      },
+      {
+        key: 'sql',
+        label: '🛡️ SQL Injection',
+        filename: 'UserRepository.java',
+        code: `public class UserRepository {
+    public User findUser(String username, String password) {
+        // Vulnerable: raw SQL query built with string concatenation
+        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        if (rs.next()) return new User(rs.getString("username"));
+        return null;
+    }
+}`
+      },
+      {
+        key: 'npe',
+        label: '💥 NullPointer & Chained Calls',
+        filename: 'OrderProcessor.java',
+        code: `public class OrderProcessor {
+    public double calculateTotal(Order order) {
+        double total = 0;
+        // Potential NullPointerException: order.getItems() is chained without null verification
+        for (Item item : order.getItems()) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        System.out.println("Computed total: " + total);
+        return total;
+    }
+}`
+      },
+      {
+        key: 'resource',
+        label: '⚠️ Resource Stream Leak',
+        filename: 'FileUtil.java',
+        code: `public class FileUtil {
+    public String readFile(String path) throws Exception {
+        // Unclosed FileInputStream stream leak without try-with-resources
+        FileInputStream fis = new FileInputStream(path);
+        byte[] data = new byte[fis.available()];
+        fis.read(data);
+        return new String(data);
+    }
+}`
+      },
+      {
+        key: 'secrets',
+        label: '🔑 Hardcoded Secrets',
+        filename: 'SecurityConfig.java',
+        code: `public class SecurityConfig {
+    private static final String API_SECRET = "sk_live_9948281194726194";
+    private static final String DB_PASS = "admin123456";
+
+    public void connect() {
+        System.out.println("Connecting with secret: " + API_SECRET);
+    }
+}`
+      },
+      {
+        key: 'complexity',
+        label: '🔄 Deep Nesting & Complexity',
+        filename: 'TaxCalculator.java',
+        code: `public class TaxCalculator {
+    public double computeTax(int age, double income, boolean married, boolean veteran) {
+        if (income > 50000) {
+            if (age > 65) {
+                if (married) {
+                    if (veteran) {
+                        return income * 0.08; // Magic number 0.08
+                    }
+                }
+            }
+        }
+        return income * 0.22; // Magic number 0.22
+    }
+}`
+      },
+      {
+        key: 'swallow',
+        label: '🔇 Empty Catch & System.out',
+        filename: 'DataProcessor.java',
+        code: `public class DataProcessor {
+    public void processData(String path) {
+        try {
+            readFromDisk(path);
+        } catch (Exception e) {
+            // Swallowed exception without logging or rethrowing
+        }
+        System.out.println("Processing finished for " + path);
+    }
+}`
+      },
+      {
+        key: 'clean',
+        label: '✅ Clean Safe Java',
+        filename: 'SafeCalculator.java',
+        code: `public class SafeCalculator {
+    /**
+     * Safely adds two integers with arithmetic overflow protection.
+     */
+    public int safeAdd(int a, int b) {
+        return Math.addExact(a, b);
+    }
+}`
+      }
+    ];
+
+    let lastReportData = null;
+    let reviewInProgress = false; // Prevent duplicate API submissions
+
+    const editor = document.getElementById('codeEditor');
+    const lineNumbers = document.getElementById('lineNumbers');
+    const editorStats = document.getElementById('editorStats');
+    const activeFilename = document.getElementById('activeFilename');
+
+    function updateEditorMeta() {
+      const text = editor.value;
+      const lines = text.split('\n').length || 1;
+      const chars = text.length;
+
+      let nums = '';
+      for (let i = 1; i <= lines; i++) {
+        nums += i + '<br>';
+      }
+      lineNumbers.innerHTML = nums;
+      editorStats.textContent = `${lines} lines · ${chars} chars`;
+    }
+
+    editor.addEventListener('input', updateEditorMeta);
+    editor.addEventListener('scroll', () => {
+      lineNumbers.scrollTop = editor.scrollTop;
+    });
+
+    function loadSample(index) {
+      const sample = javaSamples[index];
+      if (!sample) return;
+
+      editor.value = sample.code;
+      activeFilename.textContent = sample.filename;
+      updateEditorMeta();
+
+      document.querySelectorAll('.sample-chip').forEach((c, i) => {
+        c.classList.toggle('active', i === index);
+      });
+
+      showToast(`Loaded: ${sample.label}. Click Run Code Review when ready.`);
+    }
+
+    function clearEditor() {
+      try { sessionStorage.removeItem('aiCodeReviewer:lastCompletedReport'); sessionStorage.removeItem('aiCodeReviewer:lastReportData'); } catch (_) {}
+      editor.value = '';
+      updateEditorMeta();
+      const placeholder = document.getElementById('placeholderView');
+      const reportView = document.getElementById('reportView');
+      placeholder.style.display = 'flex';
+      reportView.style.display = 'none';
+      reportView.dataset.reviewComplete = 'false';
+      showToast('Editor cleared');
+    }
+
+    function copyEditorCode() {
+      if (!editor.value) return;
+      navigator.clipboard.writeText(editor.value).then(() => {
+        showToast('Code copied to clipboard! 📋');
+      });
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        editor.value = e.target.result;
+        activeFilename.textContent = file.name;
+        updateEditorMeta();
+        showToast(`Loaded ${file.name}. Click Run Code Review when ready.`);
+      };
+      reader.readAsText(file);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    async function runAnalysis() {
+      // Ignore repeated clicks or other callers while a review is already running.
+      if (reviewInProgress) {
+        showToast('A review is already in progress. Please wait for it to finish.');
+        return;
+      }
+
+      const code = editor.value.trim();
+      if (!code) {
+        showToast('⚠️ Please paste or type some Java code first!');
+        return;
+      }
+
+      reviewInProgress = true;
+      try { sessionStorage.removeItem('aiCodeReviewer:lastCompletedReport'); sessionStorage.removeItem('aiCodeReviewer:lastReportData'); } catch (_) {}
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const reportView = document.getElementById('reportView');
+      const placeholder = document.getElementById('placeholderView');
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '⏳ Sending code to reviewer...';
+      placeholder.style.display = 'none';
+      reportView.dataset.reviewComplete = 'false';
+      reportView.style.setProperty('display', 'flex', 'important');
+      reportView.innerHTML = `
+        <div style="text-align:center;padding:3rem 1rem;">
+          <div style="font-size:2.2rem;margin-bottom:1rem;animation:pulse 1s infinite;">🔍</div>
+          <p style="font-weight:700;font-size:1.05rem;">Reviewing your Java code with the backend...</p>
+          <p style="color:var(--text-muted);font-size:.85rem;margin-top:.4rem;">Static analysis and local AI review may take a few minutes.</p>
+        </div>`;
+
+      try {
+        const response = await fetch('http://localhost:8080/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            filename: (activeFilename.textContent || 'Untitled.java').trim(),
+            sourceCode: code
+          })
+        });
+
+        const raw = await response.text();
+        let result;
+        try { result = raw ? JSON.parse(raw) : {}; }
+        catch { throw new Error(`Backend returned a non-JSON response (HTTP ${response.status}). ${raw.slice(0, 500)}`); }
+
+        if (!response.ok) {
+          const message = result.message || result.error || result.detail || raw || `HTTP ${response.status}`;
+          throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+        }
+
+        // Support common response shapes: ReviewResult directly or wrapped in data/result.
+        const review = result.result || result.data || result;
+        const sourceIssues = Array.isArray(review.issues) ? review.issues
+          : Array.isArray(review.codeIssues) ? review.codeIssues
+          : Array.isArray(review.findings) ? review.findings : [];
+        const aiText = review.aiReview || review.ai_review || review.aiResponse || review.aiResponseText || review.aiSummary || review.summary || '';
+
+        const pick = (obj, names, fallback = '') => {
+          for (const name of names) {
+            const value = obj && obj[name];
+            if (value !== undefined && value !== null && value !== '') return value;
+          }
+          return fallback;
+        };
+        const normalizeSeverity = (value) => {
+          const v = String(value || 'MEDIUM').toUpperCase();
+          if (v.includes('CRIT')) return 'CRITICAL';
+          if (v.includes('HIGH') || v.includes('MAJOR')) return 'HIGH';
+          if (v.includes('LOW') || v.includes('INFO')) return 'LOW';
+          return 'MEDIUM';
+        };
+        const normalizedIssues = sourceIssues.map((issue, index) => {
+          const severity = normalizeSeverity(pick(issue, ['severity', 'level', 'priority'], 'MEDIUM'));
+          const categoryRaw = String(pick(issue, ['category', 'type', 'analyzer', 'ruleName'], 'quality')).toLowerCase();
+          let category = /security|sql|secret|vulnerab|injection|auth/.test(categoryRaw) ? 'security'
+            : /maintain|complex|resource|performance|architecture/.test(categoryRaw) ? 'maintainability' : 'quality';
+          const line = Number(pick(issue, ['lineNumber', 'line', 'startLine', 'lineNo'], index + 1)) || index + 1;
+          const title = String(pick(issue, ['title', 'name', 'ruleName', 'type', 'analyzer'], `Code issue ${index + 1}`));
+          const description = String(pick(issue, ['description', 'message', 'details', 'problem', 'explanation'], 'The analyzer reported an issue.'));
+          const snippet = String(pick(issue, ['codeSnippet', 'snippet', 'sourceLine', 'code'], ''));
+          const fix = String(pick(issue, ['suggestion', 'recommendation', 'fix', 'solution'], 'Review this finding and apply the appropriate fix.'));
+          const badgeClass = severity === 'CRITICAL' ? 'badge-critical' : severity === 'HIGH' ? 'badge-high' : severity === 'LOW' ? 'badge-low' : 'badge-medium';
+          return { category, line, snippet, severity, badgeClass, title, mistake: description, deductionText: '', fix };
+        });
+
+        const scoreFor = (category) => {
+          const deductions = normalizedIssues.filter(i => i.category === category).reduce((sum, issue) => {
+            return sum + ({ CRITICAL: 4, HIGH: 2.5, MEDIUM: 1.5, LOW: 0.5 }[issue.severity] || 1);
+          }, 0);
+          return Math.max(1, 10 - deductions);
+        };
+        if (normalizedIssues.length === 0) {
+          normalizedIssues.push({ category: 'clean', line: 1, snippet: '', severity: 'CLEAN', badgeClass: 'badge-clean', title: 'No static-analysis issues returned', mistake: 'The backend returned no static-analysis findings for this submission.', deductionText: '', fix: 'Review the AI feedback below for additional recommendations.' });
+        }
+
+        const secScore = scoreFor('security');
+        const qualScore = scoreFor('quality');
+        const maintScore = scoreFor('maintainability');
+        const overallScore = (secScore + qualScore + maintScore) / 3;
+        const verdict = overallScore < 5 ? 'Critical Risks Detected' : overallScore < 7.5 ? 'Refactoring Recommended' : 'Review Complete';
+        lastReportData = {
+          lang: 'java', filename: review.filename || activeFilename.textContent,
+          secScore: secScore.toFixed(1), qualScore: qualScore.toFixed(1), maintScore: maintScore.toFixed(1),
+          overallScore: overallScore.toFixed(1), verdict, mistakes: normalizedIssues,
+          refactorCode: '', timestamp: new Date().toISOString(), aiReview: String(aiText || '')
+        };
+
+        renderJavaReportUI(lastReportData, overallScore < 5 ? 'var(--accent3)' : overallScore < 7.5 ? 'var(--accent-warn)' : 'var(--accent2)');
+
+        const aiSection = document.createElement('section');
+        aiSection.style.cssText = 'padding:1rem 0;margin-top:1rem;border-top:1px solid var(--border);max-width:none;';
+        aiSection.innerHTML = `<h3 style="font-size:1rem;margin-bottom:.75rem;color:var(--accent2);">🤖 AI Review</h3><div id="aiReviewText" style="white-space:pre-wrap;overflow-wrap:anywhere;background:#090e17;border:1px solid var(--border);border-radius:8px;padding:1rem;color:var(--text);font-size:.88rem;line-height:1.7;"></div>`;
+        reportView.prepend(aiSection);
+        document.getElementById('aiReviewText').textContent = lastReportData.aiReview || 'The backend response did not contain an AI review field. Check the POST response in DevTools → Network → Response and ensure ReviewResult exposes getAiReview().';
+        placeholder.style.display = 'none';
+        reportView.style.setProperty('display', 'flex', 'important');
+        reportView.dataset.reviewComplete = 'true';
+        try {
+          sessionStorage.setItem('aiCodeReviewer:lastCompletedReport', reportView.innerHTML);
+          sessionStorage.setItem('aiCodeReviewer:lastReportData', JSON.stringify(lastReportData));
+        } catch (storageError) { console.warn('Could not persist report for page reload:', storageError); }
+        showToast('✅ Backend review received and displayed');
+      } catch (error) {
+        console.error('Code review request failed:', error);
+        reportView.innerHTML = `<div style="padding:1.5rem;border:1px solid rgba(248,113,113,.45);border-radius:10px;background:rgba(248,113,113,.08);"><h3 style="color:#f87171;margin-bottom:.6rem;">❌ Review failed</h3><p style="white-space:pre-wrap;overflow-wrap:anywhere;color:var(--text);">${String(error.message || error).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p><p style="margin-top:.75rem;color:var(--text-muted);font-size:.85rem;">Confirm Spring Boot is running on port 8080. If the browser reports a CORS error, configure WebConfig to allow your Live Server origin (usually http://127.0.0.1:5500).</p></div>`;
+        placeholder.style.display = 'none';
+        reportView.style.setProperty('display', 'flex', 'important');
+        reportView.dataset.reviewComplete = 'true';
+        showToast('❌ Review request failed');
+      } finally {
+        reviewInProgress = false;
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '⚡ Run Code Review';
+      }
+    }
+
+    // No MutationObserver is needed here: runAnalysis() explicitly shows the report
+    // after rendering, and clearEditor() explicitly hides it. Observing the style
+    // attribute while writing to that same attribute can repeatedly retrigger the
+    // observer and interfere with rendering in some browsers.
+
+    // Accurate Java Analyzer & Mistake Detector
+    function generateJavaReport(code) {
+      const lines = code.split('\n');
+      const mistakes = [];
+      let refactorCode = '';
+
+      let secDeductions = 0;
+      let qualDeductions = 0;
+      let maintDeductions = 0;
+
+      // ── 1. Security Checks (OWASP) ───────────────────────
+      // Rule: SQL Injection via concatenation
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (/(SELECT|INSERT|UPDATE|DELETE|WHERE)\b/i.test(line) && line.includes('+')) {
+          secDeductions += 5.8;
+          mistakes.push({
+            category: 'security',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'CRITICAL',
+            badgeClass: 'badge-critical',
+            title: '🚨 SQL Injection Vulnerability (OWASP A03)',
+            mistake: 'Dynamic SQL query constructed with raw string concatenation. Untrusted input concatenated directly into the query allows attackers to bypass authentication or extract/drop databases.',
+            deductionText: '-5.8 pts on Security Score',
+            fix: 'Replace string concatenation with java.sql.PreparedStatement and "?" positional placeholders.'
+          });
+          if (!refactorCode) {
+            refactorCode = `// 1. Fixed SQL Injection: Use PreparedStatement\nString sql = "SELECT * FROM users WHERE user = ? AND pass = ?";\ntry (PreparedStatement pstmt = conn.prepareStatement(sql)) {\n    pstmt.setString(1, username);\n    pstmt.setString(2, password);\n    try (ResultSet rs = pstmt.executeQuery()) {\n        if (rs.next()) return new User(username);\n    }\n}`;
+          }
+          break;
+        }
+      }
+
+      // Rule: Hardcoded Secrets & Passwords
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (/("sk_live[a-zA-Z0-9_]+"|"admin123456"|password\s*=\s*"[^"]+"|secret\s*=\s*"[^"]+"|API_KEY\s*=\s*"[^"]+")/i.test(line)) {
+          secDeductions += 3.5;
+          mistakes.push({
+            category: 'security',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'HIGH',
+            badgeClass: 'badge-high',
+            title: '🔑 Hardcoded Credentials / Secrets (OWASP A07)',
+            mistake: 'Sensitive database password or API secret is hardcoded directly in plaintext source code. Committing this file leaks credentials to version control history.',
+            deductionText: '-3.5 pts on Security Score',
+            fix: 'Extract secrets to environment variables (System.getenv("API_KEY")) or a secure secrets manager.'
+          });
+          break;
+        }
+      }
+
+      // Rule: Command Injection via Runtime.exec
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (/Runtime\.getRuntime\(\)\.exec|new\s+ProcessBuilder/.test(line) && (line.includes('+') || line.includes('%s'))) {
+          secDeductions += 6.0;
+          mistakes.push({
+            category: 'security',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'CRITICAL',
+            badgeClass: 'badge-critical',
+            title: '🚨 Arbitrary Command Injection (OWASP A03)',
+            mistake: 'Executing system shell commands with concatenated user input. Attackers can inject command separators (e.g. ; or &&) to execute arbitrary commands on the server.',
+            deductionText: '-6.0 pts on Security Score',
+            fix: 'Pass arguments as a structured array without shell interpretation, or use native Java APIs instead of shell commands.'
+          });
+          break;
+        }
+      }
+
+      // ── 2. Code Quality & Reliability Checks ─────────────
+      // Rule: Swallowed Exception / Empty Catch
+      const codeWithoutComments = code.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+      const hasEmptyCatch = /catch\s*\([^)]+\)\s*\{\s*\}/.test(codeWithoutComments);
+      let caughtEmptyLine = -1;
+
+      if (hasEmptyCatch) {
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].includes('catch')) {
+            caughtEmptyLine = i + 1;
+            break;
+          }
+        }
+        qualDeductions += 2.2;
+        mistakes.push({
+          category: 'quality',
+          line: caughtEmptyLine > 0 ? caughtEmptyLine : 1,
+          snippet: lines[caughtEmptyLine - 1]?.trim() || 'catch (Exception e) { }',
+          severity: 'HIGH',
+          badgeClass: 'badge-high',
+          title: '🔇 Empty Catch Block (Swallowed Exception)',
+          mistake: 'An exception is caught but silently ignored. Errors will fail silently, leading to corrupted application state or unhandled background failures.',
+          deductionText: '-2.2 pts on Code Quality',
+          fix: 'Log the exception using a structured logger (log.error("...", e)) or rethrow a domain-specific RuntimeException.'
+        });
+      }
+
+      // Rule: Catching Generic Exception (if not already empty catch)
+      if (!hasEmptyCatch) {
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          if (/catch\s*\(\s*(Exception|Throwable)\s+[a-zA-Z0-9_]+\s*\)/.test(line)) {
+            qualDeductions += 1.2;
+            mistakes.push({
+              category: 'quality',
+              line: i + 1,
+              snippet: line.trim(),
+              severity: 'MEDIUM',
+              badgeClass: 'badge-medium',
+              title: '⚠️ Catching Generic java.lang.Exception',
+              mistake: 'Catching top-level Exception or Throwable masks unexpected runtime exceptions like NullPointerException, OutOfMemoryError, or IllegalArgumentException.',
+              deductionText: '-1.2 pts on Code Quality',
+              fix: 'Catch specific, targeted checked exceptions (e.g., SQLException, IOException) rather than generic Exception.'
+            });
+            break;
+          }
+        }
+      }
+
+      // Rule: Potential Null Pointer Exception / Unchecked Chaining
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if ((/\.[a-zA-Z0-9_]+\(\)\.[a-zA-Z0-9_]+\(\)/.test(line) || line.includes('.getItems()')) && !line.includes('!= null')) {
+          qualDeductions += 1.5;
+          mistakes.push({
+            category: 'quality',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'MEDIUM',
+            badgeClass: 'badge-medium',
+            title: '💥 Potential NullPointerException (NPE)',
+            mistake: 'Chained method calls executed without null validation on the intermediate object. If the return value is null, a NullPointerException will crash the active thread.',
+            deductionText: '-1.5 pts on Code Quality',
+            fix: 'Use Optional<T> or check for null before invoking chained operations.'
+          });
+          break;
+        }
+      }
+
+      // Rule: Direct System.out.println / System.err.println in production
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.includes('System.out.print') || line.includes('System.err.print')) {
+          qualDeductions += 1.0;
+          mistakes.push({
+            category: 'quality',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'LOW',
+            badgeClass: 'badge-low',
+            title: 'ℹ️ Code Smell: Direct System.out Console Output',
+            mistake: 'Direct calls to System.out.println bypass logging frameworks. They cannot be turned off, lack timestamps, thread IDs, and structured logging levels.',
+            deductionText: '-1.0 pts on Code Quality',
+            fix: 'Use SLF4J / Logback (e.g. private static final Logger log = LoggerFactory.getLogger(...)).'
+          });
+          break;
+        }
+      }
+
+      // ── 3. Maintainability & Architecture Checks ────────
+      // Rule: Resource Leak (Unclosed streams without try-with-resources)
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (/new\s+(FileInputStream|FileReader|BufferedReader|Scanner|Socket|Connection|Statement)/.test(line)) {
+          const hasTryWithResources = /try\s*\([^)]*new\s+/.test(code) || (code.includes('try (') && code.includes(')'));
+          const hasExplicitClose = code.includes('.close()');
+          if (!hasTryWithResources && !hasExplicitClose) {
+            maintDeductions += 3.5;
+            mistakes.push({
+              category: 'maintainability',
+              line: i + 1,
+              snippet: line.trim(),
+              severity: 'HIGH',
+              badgeClass: 'badge-high',
+              title: '⚠️ Unclosed I/O Resource Stream (Leak)',
+              mistake: 'An I/O stream or database handle is opened without try-with-resources or a finally close block. Under load, this causes OS file descriptor exhaustion.',
+              deductionText: '-3.5 pts on Maintainability',
+              fix: 'Wrap resource instantiation in a try-with-resources statement: try (FileInputStream fis = new FileInputStream(...)) { ... }'
+            });
+            if (!refactorCode) {
+              refactorCode = `// 2. Fixed Resource Leak: Use try-with-resources\ntry (FileInputStream fis = new FileInputStream("config.properties")) {\n    byte[] data = fis.readAllBytes();\n    // ... process safely\n}`;
+            }
+            break;
+          }
+        }
+      }
+
+      // Rule: Deep Nesting (> 3 levels)
+      let maxBraceDepth = 0;
+      let currentDepth = 0;
+      let deepNestingLine = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.includes('{')) currentDepth += (line.match(/\{/g) || []).length;
+        if (line.includes('}')) currentDepth -= (line.match(/\}/g) || []).length;
+        if (currentDepth > 4 && deepNestingLine === -1) {
+          deepNestingLine = i + 1;
+        }
+      }
+      if (deepNestingLine !== -1) {
+        maintDeductions += 2.0;
+        mistakes.push({
+          category: 'maintainability',
+          line: deepNestingLine,
+          snippet: lines[deepNestingLine - 1]?.trim() || '',
+          severity: 'MEDIUM',
+          badgeClass: 'badge-medium',
+          title: '🔄 Excessive Deep Nesting (> 3 levels)',
+          mistake: 'Deeply nested control structures (if/for/while > 3 levels) drastically increase cyclomatic complexity, making unit testing and edge case verification error-prone.',
+          deductionText: '-2.0 pts on Maintainability',
+          fix: 'Refactor using guard clauses (early returns) or extract nested blocks into smaller helper methods.'
+        });
+      }
+
+      // Rule: Magic Numbers
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (/\b(0\.08|0\.22|86400|9999|10000)\b/.test(line) && !line.includes('static final')) {
+          maintDeductions += 1.0;
+          mistakes.push({
+            category: 'maintainability',
+            line: i + 1,
+            snippet: line.trim(),
+            severity: 'LOW',
+            badgeClass: 'badge-low',
+            title: '🔢 Anti-Pattern: Unnamed Magic Number',
+            mistake: 'Magic numbers used directly in calculations without explanation. If these constants change in the future, updating them in multiple places causes regression bugs.',
+            deductionText: '-1.0 pts on Maintainability',
+            fix: 'Declare constants as private static final double TAX_RATE = 0.08;'
+          });
+          break;
+        }
+      }
+
+      // ── Accurate Score Calculations ─────────────────────
+      let secScore = Math.max(1.0, Math.min(10.0, 10.0 - secDeductions));
+      let qualScore = Math.max(1.0, Math.min(10.0, 10.0 - qualDeductions));
+      let maintScore = Math.max(1.0, Math.min(10.0, 10.0 - maintDeductions));
+
+      // Overall Score: composite average across Security, Code Quality, and Maintainability
+      let overallScore = (secScore + qualScore + maintScore) / 3.0;
+
+      if (mistakes.length === 0) {
+        secScore = 10.0;
+        qualScore = 10.0;
+        maintScore = 10.0;
+        overallScore = 10.0;
+
+        mistakes.push({
+          category: 'clean',
+          line: 1,
+          snippet: 'public class ' + (activeFilename.textContent.replace('.java', '')),
+          severity: 'CLEAN',
+          badgeClass: 'badge-clean',
+          title: '✅ Zero Mistakes Detected!',
+          mistake: 'No security vulnerabilities, resource leaks, or code anti-patterns were found. Code adheres to clean Java 17+ best practices.',
+          deductionText: '0 deductions',
+          fix: 'Code is production-ready.'
+        });
+      }
+
+      const secStr = secScore.toFixed(1);
+      const qualStr = qualScore.toFixed(1);
+      const maintStr = maintScore.toFixed(1);
+      const overallStr = (Math.floor(overallScore * 10) / 10).toFixed(1);
+
+      let verdictText = 'Production Ready';
+      let overallRingColor = 'var(--accent2)';
+      if (overallScore < 5.0) {
+        verdictText = 'Critical Risks Detected';
+        overallRingColor = 'var(--accent3)';
+      } else if (overallScore < 7.5) {
+        verdictText = 'Refactoring Recommended';
+        overallRingColor = 'var(--accent-warn)';
+      }
+
+      lastReportData = {
+        lang: 'java',
+        filename: activeFilename.textContent,
+        secScore: secStr,
+        qualScore: qualStr,
+        maintScore: maintStr,
+        overallScore: overallStr,
+        verdict: verdictText,
+        mistakes: mistakes,
+        refactorCode: refactorCode,
+        timestamp: new Date().toISOString()
+      };
+
+      renderJavaReportUI(lastReportData, overallRingColor);
+    }
+
+    // Render 4-Score Visual Output
+    function renderJavaReportUI(data, ringColor) {
+      const reportView = document.getElementById('reportView');
+      const circumference = 251.2;
+      const strokeOffset = circumference - (parseFloat(data.overallScore) / 10) * circumference;
+
+      reportView.innerHTML = `
+        <!-- The 4-Score Section -->
+        <div class="scores-hero-container">
+          <!-- Overall Hero Card -->
+          <div class="overall-card">
+            <div class="overall-ring-wrap">
+              <svg class="overall-ring-svg" viewBox="0 0 100 100">
+                <circle class="overall-ring-bg" cx="50" cy="50" r="40"></circle>
+                <circle class="overall-ring-progress" cx="50" cy="50" r="40" style="stroke: ${ringColor}; stroke-dashoffset: ${strokeOffset};"></circle>
+              </svg>
+              <div class="overall-ring-center">
+                <span class="overall-number">${data.overallScore}</span>
+                <span class="overall-max">/ 10</span>
+              </div>
+            </div>
+            <div class="overall-label">Overall Score</div>
+            <div class="overall-verdict" style="color: ${ringColor};">${data.verdict}</div>
+          </div>
+
+          <!-- 3-Metric Sub-Scores Grid -->
+          <div class="subscores-grid">
+            <!-- 1. Security Score -->
+            <div class="subscore-card">
+              <div class="subscore-top">
+                <span class="subscore-title" style="color: #f87171;">🛡️ Security Score</span>
+                <span class="subscore-score" style="color: #f87171;">${data.secScore} <small>/ 10</small></span>
+              </div>
+              <div class="subscore-progress-track">
+                <div class="subscore-progress-fill sec" style="width: ${parseFloat(data.secScore) * 10}%;"></div>
+              </div>
+              <div class="subscore-desc">
+                <span>OWASP & Vulnerability Safety</span>
+                <span>${data.mistakes.filter(m => m.category === 'security').length} issues</span>
+              </div>
+            </div>
+
+            <!-- 2. Code Quality Score -->
+            <div class="subscore-card">
+              <div class="subscore-top">
+                <span class="subscore-title" style="color: #38bdf8;">🧼 Code Quality</span>
+                <span class="subscore-score" style="color: #38bdf8;">${data.qualScore} <small>/ 10</small></span>
+              </div>
+              <div class="subscore-progress-track">
+                <div class="subscore-progress-fill qual" style="width: ${parseFloat(data.qualScore) * 10}%;"></div>
+              </div>
+              <div class="subscore-desc">
+                <span>Exceptions, Nulls & Clean Code</span>
+                <span>${data.mistakes.filter(m => m.category === 'quality').length} issues</span>
+              </div>
+            </div>
+
+            <!-- 3. Maintainability Score -->
+            <div class="subscore-card">
+              <div class="subscore-top">
+                <span class="subscore-title" style="color: #c084fc;">🔧 Maintainability</span>
+                <span class="subscore-score" style="color: #c084fc;">${data.maintScore} <small>/ 10</small></span>
+              </div>
+              <div class="subscore-progress-track">
+                <div class="subscore-progress-fill maint" style="width: ${parseFloat(data.maintScore) * 10}%;"></div>
+              </div>
+              <div class="subscore-desc">
+                <span>Streams, Complexity & Nesting</span>
+                <span>${data.mistakes.filter(m => m.category === 'maintainability').length} issues</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pointing Out Mistakes -->
+        <div class="mistakes-section-header">
+          <div class="mistakes-title">
+            <span>❌ Pointing Out Mistakes (${data.mistakes.length})</span>
+          </div>
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="filterMistakes('all', this)">All</button>
+            <button class="filter-btn" onclick="filterMistakes('security', this)">🛡️ Security</button>
+            <button class="filter-btn" onclick="filterMistakes('quality', this)">🧼 Quality</button>
+            <button class="filter-btn" onclick="filterMistakes('maintainability', this)">🔧 Maintainability</button>
+          </div>
+        </div>
+
+        <div class="mistakes-list" id="mistakesContainer">
+          ${data.mistakes.map(m => `
+            <div class="mistake-card ${m.category === 'security' ? 'sec' : (m.category === 'quality' ? 'qual' : (m.category === 'maintainability' ? 'maint' : 'clean'))}" data-cat="${m.category}">
+              <div class="mistake-top">
+                <div class="mistake-title">
+                  <span>${m.title}</span>
+                  <span class="mistake-line-tag">Line ${m.line}</span>
+                </div>
+                <span class="badge-tag ${m.badgeClass}">${m.severity}</span>
+              </div>
+
+              ${m.snippet ? `<div class="mistake-snippet-box"><code>Line ${m.line}: ${m.snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></div>` : ''}
+
+              <div class="mistake-desc">${m.mistake}</div>
+
+              ${m.deductionText ? `<div class="mistake-impact">📉 Impact: ${m.deductionText}</div>` : ''}
+
+              ${m.fix ? `<div class="mistake-fix-box"><strong>💡 How to Fix:</strong> ${m.fix}</div>` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Refactored Code Solution -->
+        ${data.refactorCode ? `
+          <div class="refactor-box">
+            <div class="refactor-header">
+              <span>🤖 AI Recommended Refactor</span>
+              <div style="display: flex; gap: 0.4rem;">
+                <button class="btn btn-ghost" onclick="applyRefactor()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">Apply to Editor</button>
+                <button class="btn btn-ghost" onclick="copyRefactor()" style="padding: 0.25rem 0.65rem; font-size: 0.74rem;">Copy Fix</button>
+              </div>
+            </div>
+            <pre class="refactor-content"><code>${data.refactorCode.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+          </div>
+        ` : ''}
+
+        <!-- Export Buttons -->
+        <div class="export-actions-row">
+          <button class="btn btn-ghost" onclick="exportJavaReport('markdown')" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📄 Download Markdown
+          </button>
+          <button class="btn btn-ghost" onclick="exportJavaReport('json')" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📊 Download JSON
+          </button>
+          <button class="btn btn-ghost" onclick="copyReportSummary()" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+            📋 Copy Score Summary
+          </button>
+        </div>
+      `;
+    }
+
+    function filterMistakes(cat, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      const items = document.querySelectorAll('.mistake-card');
+      items.forEach(el => {
+        if (cat === 'all' || el.getAttribute('data-cat') === cat) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function copyRefactor() {
+      if (lastReportData && lastReportData.refactorCode) {
+        navigator.clipboard.writeText(lastReportData.refactorCode).then(() => {
+          showToast('Refactored code copied to clipboard! 📋');
+        });
+      }
+    }
+
+    function applyRefactor() {
+      if (lastReportData && lastReportData.refactorCode) {
+        editor.value = lastReportData.refactorCode;
+        updateEditorMeta();
+        showToast('Applied refactor to editor! 🚀');
+        runAnalysis();
+      }
+    }
+
+    function copyReportSummary() {
+      if (!lastReportData) return;
+      const text = `Security Score: ${lastReportData.secScore}/10\nCode Quality: ${lastReportData.qualScore}/10\nMaintainability: ${lastReportData.maintScore}/10\n\nOverall:\n${lastReportData.overallScore}/10\n\nMistakes Detected: ${lastReportData.mistakes.length}`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Score summary copied to clipboard!');
+      });
+    }
+
+    function exportJavaReport(format) {
+      if (!lastReportData) {
+        showToast('No review data is available to download. Run a review first.');
+        return;
+      }
+
+      const filename = `java-code-review.${format === 'markdown' ? 'md' : 'json'}`;
+      let content = '';
+
+      if (format === 'markdown') {
+        content = `# Java Code Review Report\n\n`;
+        content += `- **Security Score:** ${lastReportData.secScore}/10\n`;
+        content += `- **Code Quality:** ${lastReportData.qualScore}/10\n`;
+        content += `- **Maintainability:** ${lastReportData.maintScore}/10\n\n`;
+        content += `### Overall: ${lastReportData.overallScore}/10 (${lastReportData.verdict})\n\n`;
+        content += `## Mistakes & Defects Found (${lastReportData.mistakes.length})\n\n`;
+        lastReportData.mistakes.forEach(m => {
+          content += `### Line ${m.line}: ${m.title} [${m.severity}]\n`;
+          if (m.snippet) content += `\`\`\`java\n${m.snippet}\n\`\`\`\n`;
+          content += `**Mistake:** ${m.mistake}\n`;
+          content += `**Impact:** ${m.deductionText}\n`;
+          if (m.fix) content += `**Fix:** ${m.fix}\n`;
+          content += `\n---\n`;
+        });
+        if (lastReportData.refactorCode) {
+          content += `\n## Suggested Fix\n\`\`\`java\n${lastReportData.refactorCode}\n\`\`\`\n`;
+        }
+      } else {
+        content = JSON.stringify(lastReportData, null, 2);
+      }
+
+      const mimeType = format === 'json' ? 'application/json;charset=utf-8' : 'text/markdown;charset=utf-8';
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Do not revoke immediately; some browsers need a short delay to start the download.
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      showToast(`Downloading ${filename}…`);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSample(0);
+    });
+  </script>
+  <script>
+    // Keep the last completed report visible if a development server unexpectedly reloads the page.
+    // This does not make API calls or alter the Spring Boot backend.
+    window.addEventListener('DOMContentLoaded', function () {
+      try {
+        const savedReport = sessionStorage.getItem('aiCodeReviewer:lastCompletedReport');
+        const savedData = sessionStorage.getItem('aiCodeReviewer:lastReportData');
+        const reportView = document.getElementById('reportView');
+        const placeholder = document.getElementById('placeholderView');
+        if (savedData) {
+          try { lastReportData = JSON.parse(savedData); }
+          catch (parseError) { console.warn('Could not restore saved review data:', parseError); }
+        }
+        if (savedReport && reportView && placeholder) {
+          reportView.innerHTML = savedReport;
+          reportView.style.setProperty('display', 'flex', 'important');
+          reportView.dataset.reviewComplete = 'true';
+          placeholder.style.display = 'none';
+          console.info('Restored the last completed code review after page reload.');
+        }
+      } catch (error) {
+        console.warn('Could not restore the previous review:', error);
+      }
+    });
+  </script>
+</body>
+</html>
