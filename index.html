@@ -1009,6 +1009,56 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.5; transform: scale(1.3); }
     }
+
+    /* ── UI refinement ─────────────────────────────────── */
+    nav { padding: 0.85rem clamp(1rem, 4vw, 3.5rem); }
+    .nav-links { gap: clamp(0.8rem, 2vw, 1.75rem); }
+    .hero { min-height: 62vh; padding-top: 125px; }
+    .hero h1 { max-width: 980px; }
+    .hero p { max-width: 720px; }
+    #playground { padding-top: 3rem; }
+    .studio-container { box-shadow: 0 28px 80px rgba(0,0,0,.48), 0 0 0 1px rgba(56,189,248,.05); }
+    .studio-header { padding: 1.1rem 1.5rem; }
+    .editor-panel { min-width: 0; }
+    .editor-workspace { min-width: 0; }
+    .code-editor { min-width: 0; }
+    .file-dropzone-hint { padding: .55rem .9rem; background: rgba(56,189,248,.08); }
+    .file-dropzone-hint:hover { background: rgba(56,189,248,.15); }
+    .editor-topbar { min-height: 48px; }
+    .output-panel { min-width: 0; }
+    .btn:focus-visible, a:focus-visible, .file-dropzone-hint:focus-within {
+      outline: 2px solid var(--accent); outline-offset: 3px;
+    }
+    .editor-actions { flex-wrap: wrap; }
+    .editor-btn-subgroup { display: flex; gap: .55rem; }
+    footer { padding-bottom: 2.5rem; }
+    .footer-github {
+      display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+      margin: 1.15rem auto .9rem; padding: .7rem 1.1rem;
+      border: 1px solid rgba(56,189,248,.35); border-radius: 999px;
+      background: rgba(56,189,248,.08); color: var(--text) !important;
+    }
+    .footer-github:hover { background: rgba(56,189,248,.16); text-decoration: none; }
+    @media (max-width: 700px) {
+      nav { padding: .75rem 1rem; }
+      .nav-logo { font-size: 1.05rem; }
+      .nav-links { gap: .85rem; }
+      .nav-links a { font-size: .8rem; }
+      .hero { min-height: auto; padding: 110px 1.1rem 2.2rem; }
+      #playground, section { padding-left: 1rem; padding-right: 1rem; }
+      .studio-header { align-items: flex-start; }
+      .editor-actions { align-items: stretch; }
+      .editor-actions > button { width: 100%; justify-content: center; }
+      .output-panel { padding: 1.1rem; max-height: none; }
+    }
+    @media (max-width: 430px) {
+      .nav-links { gap: .6rem; }
+      .nav-links a { font-size: .74rem; }
+      .nav-logo { gap: .45rem; font-size: .95rem; }
+      .nav-logo-icon { width: 30px; height: 30px; }
+      .studio-header { flex-direction: column; }
+    }
+
   </style>
 </head>
 <body>
@@ -1030,14 +1080,6 @@
       <li><a href="#playground">Java Studio</a></li>
       <li><a href="#features">Rule Engine</a></li>
       <li><a href="#quickstart">Quickstart</a></li>
-      <li>
-        <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="nav-cta">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-          </svg>
-          abhijit-SIT/aicodereview
-        </a>
-      </li>
     </ul>
   </nav>
 
@@ -1055,9 +1097,6 @@
     <div class="hero-actions">
       <a href="#playground" class="btn btn-primary">
         ⚡ Review Java Code
-      </a>
-      <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" class="btn btn-ghost">
-        View GitHub Repo
       </a>
     </div>
   </section>
@@ -1084,28 +1123,9 @@
               <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
             <span>Upload .java</span>
-            <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)" accept=".java,.txt" />
+            <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)" accept=".java" />
           </label>
         </div>
-      </div>
-
-      <!-- Preset Samples Bar -->
-      <div class="samples-bar" id="samplesBar">
-        <span class="samples-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="4 17 10 11 4 5"></polyline>
-            <line x1="12" y1="19" x2="20" y2="19"></line>
-          </svg>
-          Java Snippets:
-        </span>
-        <button class="sample-chip active" onclick="loadSample(0)">🚨 Vulnerability Combo</button>
-        <button class="sample-chip" onclick="loadSample(1)">🛡️ SQL Injection</button>
-        <button class="sample-chip" onclick="loadSample(2)">💥 NullPointer & Chained Calls</button>
-        <button class="sample-chip" onclick="loadSample(3)">⚠️ Resource Stream Leak</button>
-        <button class="sample-chip" onclick="loadSample(4)">🔑 Hardcoded Secrets</button>
-        <button class="sample-chip" onclick="loadSample(5)">🔄 Deep Nesting & Complexity</button>
-        <button class="sample-chip" onclick="loadSample(6)">🔇 Empty Catch & System.out</button>
-        <button class="sample-chip" onclick="loadSample(7)">✅ Clean Safe Java</button>
       </div>
 
       <!-- Studio Body Grid -->
@@ -1113,7 +1133,7 @@
         <!-- Left: Code Editor -->
         <div class="editor-panel">
           <div class="editor-topbar">
-            <span id="activeFilename">UserService.java</span>
+            <span id="activeFilename">No file selected</span>
             <div style="display: flex; gap: 1rem;">
               <span id="editorStats">0 lines · 0 chars</span>
             </div>
@@ -1121,7 +1141,7 @@
 
           <div class="editor-workspace">
             <div class="line-numbers" id="lineNumbers">1</div>
-            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Paste or type your Java code here..."></textarea>
+            <textarea id="codeEditor" class="code-editor" spellcheck="false" placeholder="// Upload a .java file or paste your Java source code here...\n// Your code will appear here when you add it."></textarea>
           </div>
 
           <div class="editor-actions">
@@ -1189,17 +1209,47 @@
   <section id="quickstart">
     <div class="section-label">Developer Quickstart</div>
     <h2 class="section-title">Run Java Reviewer Locally</h2>
+    <p class="section-description">Follow these steps in order. The backend uses Spring Boot, PostgreSQL for review history, and a locally running Ollama model.</p>
 
     <div class="cli-box">
-      <pre class="cli-code"><code><span class="comment"># 1. Clone repository</span>
+      <pre class="cli-code"><code><span class="comment"># 1. Clone ONE of the repositories (choose the copy with the latest commit)</span>
+<span class="cmd-prefix">$ </span>git clone https://github.com/sriyansu-DE/aicodereview.git
+<span class="cmd-prefix">$ </span>cd aicodereview
+
+<span class="comment"># Alternative repository:</span>
 <span class="cmd-prefix">$ </span>git clone https://github.com/abhijit-SIT/aicodereview.git
 <span class="cmd-prefix">$ </span>cd aicodereview
 
-<span class="comment"># 2. Run automated test suite</span>
-<span class="cmd-prefix">$ </span>mvn test
+<span class="comment"># 2. Start Ollama in a separate terminal (if it is not already running)</span>
+<span class="cmd-prefix">$ </span>ollama serve
 
-<span class="comment"># 3. Launch Spring Boot review service</span>
-<span class="cmd-prefix">$ </span>mvn spring-boot:run</code></pre>
+<span class="comment"># 3. Download the model configured by this project</span>
+<span class="comment"># Check application.properties / application.yml for the configured Ollama model name.</span>
+<span class="cmd-prefix">$ </span>ollama pull YOUR_CONFIGURED_MODEL
+
+<span class="comment"># 4. Configure PostgreSQL credentials in the backend configuration</span>
+<span class="comment"># Create the database and set the matching URL, username and password.</span>
+
+<span class="comment"># 5. From the backend project directory, run tests and start Spring Boot</span>
+<span class="cmd-prefix">$ </span>mvn test
+<span class="cmd-prefix">$ </span>mvn spring-boot:run
+
+<span class="comment"># 6. Open the frontend in your browser</span>
+<span class="comment"># Use the frontend location/instructions provided by the selected repository.</span></code></pre>
+    </div>
+    <div class="feature-grid" style="margin-top:1.5rem">
+      <div class="feature-card">
+        <h3>Prerequisites</h3>
+        <p>Git, JDK 21, Maven, PostgreSQL, and Ollama must be installed. Keep Ollama and the Spring Boot backend running while using the reviewer.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Choose a repository</h3>
+        <p>Compare each repository's latest commit date and README before cloning. Clone only one copy for a single local setup; do not combine files from both repositories.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Configuration note</h3>
+        <p>Replace YOUR_CONFIGURED_MODEL with the exact model name in the project's Ollama configuration. Never commit database passwords, API keys, or other secrets.</p>
+      </div>
     </div>
   </section>
 
@@ -1209,10 +1259,16 @@
       <li><a href="#playground">Java Studio</a></li>
       <li><a href="#features">Rule Engine</a></li>
       <li><a href="#quickstart">Quickstart</a></li>
-      <li><a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub Repository</a></li>
-      <li><a href="https://github.com/abhijit-SIT/aicodereview/issues" target="_blank">Issues</a></li>
+      <li><a href="https://github.com/sriyansu-DE/aicodereview" target="_blank" rel="noopener noreferrer">GitHub Repository (Sriyansu)</a></li>
+      <li><a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" rel="noopener noreferrer">GitHub Repository (Abhijit)</a></li>
     </ul>
-    <p>AI Code Reviewer · Maintained on <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank">GitHub (abhijit-SIT/aicodereview)</a></p>
+    <a class="footer-github" href="https://github.com/sriyansu-DE/aicodereview" target="_blank" rel="noopener noreferrer" aria-label="Open Sriyansu's AI Code Reviewer GitHub repository">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+      View Sriyansu's repository
+    </a>
+    <p>AI Code Reviewer · Repositories: <a href="https://github.com/sriyansu-DE/aicodereview" target="_blank" rel="noopener noreferrer">sriyansu-DE/aicodereview</a> · <a href="https://github.com/abhijit-SIT/aicodereview" target="_blank" rel="noopener noreferrer">abhijit-SIT/aicodereview</a></p>
   </footer>
 
   <!-- ── Toast ─────────────────────────────────────────── -->
@@ -1223,143 +1279,7 @@
 
   <!-- ── Interactive Review Engine ─────────────────────── -->
   <script>
-    // Curated Java Samples
-    const javaSamples = [
-      {
-        key: 'combo',
-        label: '🚨 Vulnerability Combo',
-        filename: 'UserService.java',
-        code: `public class UserService {
-
-    public User authenticate(String username, String password) {
-        // Line 5: Critical SQL Injection via raw string concatenation
-        String sql = "SELECT * FROM users WHERE user = '" + username + "' AND pass = '" + password + "'";
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost/db");
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-
-        // Line 11: Swallowed exception and silent failure
-        try {
-            chargeAuditLog(username);
-        } catch (Exception e) {
-            // empty catch ignores errors silently
-        }
-
-        // Line 18: Unclosed FileInputStream resource leak
-        FileInputStream fis = new FileInputStream("config.properties");
-        byte[] data = fis.readAllBytes();
-
-        return new User(username);
-    }
-}`
-      },
-      {
-        key: 'sql',
-        label: '🛡️ SQL Injection',
-        filename: 'UserRepository.java',
-        code: `public class UserRepository {
-    public User findUser(String username, String password) {
-        // Vulnerable: raw SQL query built with string concatenation
-        String query = "SELECT * FROM users WHERE username = '" + username + "' AND password = '" + password + "'";
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        if (rs.next()) return new User(rs.getString("username"));
-        return null;
-    }
-}`
-      },
-      {
-        key: 'npe',
-        label: '💥 NullPointer & Chained Calls',
-        filename: 'OrderProcessor.java',
-        code: `public class OrderProcessor {
-    public double calculateTotal(Order order) {
-        double total = 0;
-        // Potential NullPointerException: order.getItems() is chained without null verification
-        for (Item item : order.getItems()) {
-            total += item.getPrice() * item.getQuantity();
-        }
-        System.out.println("Computed total: " + total);
-        return total;
-    }
-}`
-      },
-      {
-        key: 'resource',
-        label: '⚠️ Resource Stream Leak',
-        filename: 'FileUtil.java',
-        code: `public class FileUtil {
-    public String readFile(String path) throws Exception {
-        // Unclosed FileInputStream stream leak without try-with-resources
-        FileInputStream fis = new FileInputStream(path);
-        byte[] data = new byte[fis.available()];
-        fis.read(data);
-        return new String(data);
-    }
-}`
-      },
-      {
-        key: 'secrets',
-        label: '🔑 Hardcoded Secrets',
-        filename: 'SecurityConfig.java',
-        code: `public class SecurityConfig {
-    private static final String API_SECRET = "sk_live_9948281194726194";
-    private static final String DB_PASS = "admin123456";
-
-    public void connect() {
-        System.out.println("Connecting with secret: " + API_SECRET);
-    }
-}`
-      },
-      {
-        key: 'complexity',
-        label: '🔄 Deep Nesting & Complexity',
-        filename: 'TaxCalculator.java',
-        code: `public class TaxCalculator {
-    public double computeTax(int age, double income, boolean married, boolean veteran) {
-        if (income > 50000) {
-            if (age > 65) {
-                if (married) {
-                    if (veteran) {
-                        return income * 0.08; // Magic number 0.08
-                    }
-                }
-            }
-        }
-        return income * 0.22; // Magic number 0.22
-    }
-}`
-      },
-      {
-        key: 'swallow',
-        label: '🔇 Empty Catch & System.out',
-        filename: 'DataProcessor.java',
-        code: `public class DataProcessor {
-    public void processData(String path) {
-        try {
-            readFromDisk(path);
-        } catch (Exception e) {
-            // Swallowed exception without logging or rethrowing
-        }
-        System.out.println("Processing finished for " + path);
-    }
-}`
-      },
-      {
-        key: 'clean',
-        label: '✅ Clean Safe Java',
-        filename: 'SafeCalculator.java',
-        code: `public class SafeCalculator {
-    /**
-     * Safely adds two integers with arithmetic overflow protection.
-     */
-    public int safeAdd(int a, int b) {
-        return Math.addExact(a, b);
-    }
-}`
-      }
-    ];
-
+    // Users provide their own Java source file or paste code below.
     let lastReportData = null;
     let reviewInProgress = false; // Prevent duplicate API submissions
 
@@ -1386,21 +1306,7 @@
       lineNumbers.scrollTop = editor.scrollTop;
     });
 
-    function loadSample(index) {
-      const sample = javaSamples[index];
-      if (!sample) return;
-
-      editor.value = sample.code;
-      activeFilename.textContent = sample.filename;
-      updateEditorMeta();
-
-      document.querySelectorAll('.sample-chip').forEach((c, i) => {
-        c.classList.toggle('active', i === index);
-      });
-
-      showToast(`Loaded: ${sample.label}. Click Run Code Review when ready.`);
-    }
-
+    
     function clearEditor() {
       try { sessionStorage.removeItem('aiCodeReviewer:lastCompletedReport'); sessionStorage.removeItem('aiCodeReviewer:lastReportData'); } catch (_) {}
       editor.value = '';
@@ -1410,6 +1316,7 @@
       placeholder.style.display = 'flex';
       reportView.style.display = 'none';
       reportView.dataset.reviewComplete = 'false';
+      activeFilename.textContent = 'No file selected';
       showToast('Editor cleared');
     }
 
@@ -2102,11 +2009,7 @@
       window.setTimeout(() => URL.revokeObjectURL(url), 1500);
       showToast(`Downloading ${filename}…`);
     }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      loadSample(0);
-    });
-  </script>
+</script>
   <script>
     // Keep the last completed report visible if a development server unexpectedly reloads the page.
     // This does not make API calls or alter the Spring Boot backend.

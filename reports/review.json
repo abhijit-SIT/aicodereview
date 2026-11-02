@@ -3358,4 +3358,40 @@
   "aiReview" : "### Summary\nThe provided Java code has several issues that need to be addressed for code correctness, security, maintainability, performance, and clean code. The code is vulnerable to SQL injection, does not handle exceptions properly, and includes a resource leak due to the `FileInputStream`. These issues will be addressed in the suggested fixes.\n\n### Critical Issues\n1. **EMPTY_CATCH** at line 13: This exception is caught but the catch block is empty. The catch block should contain appropriate error handling to prevent the program from crashing or behaving unpredictably.\n2. **JAVA013** at lines 5 to 9: These lines are critical SQL Injection vulnerabilities. The SQL query is constructed by concatenating user input directly into the SQL string. This makes it susceptible to SQL injection attacks. The fix would be to use parameterized queries or prepared statements.\n3. **UNCLOSED_FILEInputStream** at line 18: This resource leak occurs because the `FileInputStream` is not closed after reading the file. This will cause resource leaks and potential file corruption if the application crashes.\n\n### Suggested Fixes\n1. **EMPTY_CATCH**:\n   ```java\n   try {\n       chargeAuditLog(username);\n   } catch (Exception e) {\n       // Log the exception or handle it appropriately\n       log.error(\"Error while authenticating user\", e);\n   }\n   ```\n\n2. **JAVA013**:\n   ```java\n   String sql = \"SELECT * FROM users WHERE user = ? AND pass = ?\";\n   Connection conn = DriverManager.getConnection(\"jdbc:mysql://localhost/db\");\n   PreparedStatement pstmt = conn.prepareStatement(sql);\n   pstmt.setString(1, username);\n   pstmt.setString(2, password);\n   ResultSet rs = pstmt.executeQuery();\n   ```\n\n3. **UNCLOSED_FILEInputStream**:\n   ```java\n   FileInputStream fis = new FileInputStream(\"config.properties\");\n   try {\n       byte[] data = fis.readAllBytes();\n   } finally {\n       try {\n           if (fis != null) fis.close();\n       } catch (IOException e) {\n           log.error(\"Error closing FileInputStream\", e);\n       }\n   }\n   ```\n\n### Overall Assessment\nThe code has several issues that need to be addressed. The SQL injection vulnerabilities can be mitigated using parameterized queries or prepared statements, and the resource leak can be prevented by closing the `FileInputStream` properly. These issues will be addressed in the suggested fixes. The overall quality of the code can be enhanced by refactoring the `authenticate` method to handle exceptions more gracefully and to use best practices for resource management.",
   "filePath" : null,
   "reviewDate" : "2026-10-27T22:33:24.200231100"
+}, {
+  "filename" : "No file selected",
+  "issues" : [ {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 5,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 7,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 9,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "SYSTEM OUT",
+    "severity" : "LOW",
+    "line" : 12,
+    "message" : "System.out output is used in the code.",
+    "suggestion" : "Use a logging framework such as java.util.logging or SLF4J."
+  }, {
+    "rule" : "MAGIC_NUMBER",
+    "severity" : "LOW",
+    "line" : 8,
+    "message" : "Unnamed numeric constant found: 2",
+    "suggestion" : "Replace it with a named constant that explains its meaning."
+  } ],
+  "aiReview" : "### Summary\n\nThe provided Java code is correct in terms of syntax and functionality. It takes an integer input from the user, prints it, and checks whether it is even or odd. The code follows basic Java best practices and does not contain any security vulnerabilities. However, it is worth noting that the magic number `2` is unused and can be removed if necessary. The use of `System.out` for debugging is acceptable for educational purposes but should be removed in a production environment due to potential security risks.\n\n### Critical Issues\n\n1. **Magic Number**: The number `2` is unused and can be removed. This reduces code clutter and improves maintainability.\n\n### Suggested Fixes\n\n1. **Remove the Unused Magic Number**:\n    ```java\n    import java.util.Scanner;\n    public class check {\n      public static void main(String[] args) {\n        Scanner n = new Scanner(System.in);\n        System.out.print(\"Enter the number:\");\n        int number = n.nextInt();\n        System.out.println(number);\n        if (number % 2 == 0) {\n          System.out.println(\"Number is even\");\n        } else {\n          System.out.println(\"Number is odd\");\n        }\n      }\n    }\n    ```\n\n### Overall Assessment\n\nThis code is correct and functional, adhering to basic Java coding standards. The only suggestion is to remove the unused magic number, which should be done in a production environment to enhance security and maintainability.",
+  "filePath" : null,
+  "reviewDate" : "2026-10-30T19:33:18.675761300"
 } ]
